@@ -2,10 +2,11 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class SkunkAppTests {
+public class SkunkGameTest {
 
 	@Test
 	public void test() {
+		// TODO create skunk game with SimDice?
 		fail("Not yet implemented");
 	}
 
