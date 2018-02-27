@@ -1,17 +1,13 @@
 
-public class SimDie implements IDie {
-	private int[] values;
+public class SimDie extends Die {
 	private int iCurrent;
 	public SimDie (int[] values) {
-		this.values = values;
+		super(values);
 		this.iCurrent = 0;
 	}
-	public int getValue() {
-		return this.values[this.iCurrent];
-	}
+	public int getValue() {return this.values[this.iCurrent];}
 	public int roll() {
-		this.iCurrent++;
-		if (this.iCurrent >= this.values.length) {this.iCurrent = 0;}
+		this.iCurrent = (this.iCurrent+1 >= this.values.length ? 0 : this.iCurrent+1);
 		return this.getValue();
 	}
 }

@@ -1,9 +1,10 @@
-public class Die implements IDie {
-	private int sides, value;
-	public Die(int sides) {
-		this.sides = sides;
-		this.value = sides;
+public abstract class Die implements Rollable {
+	protected int[] values;
+	public Die(int[] values) {
+		if (values == null)
+			throw new NullPointerException("null value array passed to Die");
+		else if (values.length == 0)
+			throw new IllegalArgumentException("empty value array passed to Die");
+		this.values = values;
 	}
-	public int getValue() {return this.value;}
-	public int roll() {return this.value = (int)(Math.random()*this.sides)+1;}
 }
