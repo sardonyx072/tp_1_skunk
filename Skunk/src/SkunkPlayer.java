@@ -1,4 +1,12 @@
 
+
+/**
+ * 
+ * This is a class to experiment with game logic. It is to be abandoned in leiu of an actual implementation.
+ * 
+ * @author Mitchell Hoffmann & Eyad Shesli
+ *
+ */
 public class SkunkPlayer implements Cloneable {
 	private String name;
 	private int chips;

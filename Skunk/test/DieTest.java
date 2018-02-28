@@ -2,8 +2,18 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/**
+ * 
+ * Comprehensive testing for the Die class
+ * 
+ * @author Mitchell Hoffmann & Eyad Shesli
+ *
+ */
 public class DieTest {
 
+	/**
+	 * Test to see if Die is a child of Rollable.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testIsRollable() {
@@ -21,6 +31,9 @@ public class DieTest {
 		assertTrue("Die object could be assigned to Rollable alias",test);
 	}
 
+	/**
+	 * Test to see if Die cannot be initialized with a null list of values. 
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotNull() {
@@ -38,6 +51,9 @@ public class DieTest {
 		assertTrue("Die threw exception upon receiving a null value",test);
 	}
 
+	/**
+	 * Test to see if Die cannot be initialized with an empty list of values.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotEmpty() {

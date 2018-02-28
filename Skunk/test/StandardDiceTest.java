@@ -2,8 +2,18 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/**
+ * 
+ * Comprehensive testing for the StandardDice class.
+ * 
+ * @author Mitchell Hoffmann & Eyad Shesli
+ *
+ */
 public class StandardDiceTest {
 	
+	/**
+	 * Test to see if StandardDice is a child of Rollable.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testIsRollable() {
@@ -15,6 +25,9 @@ public class StandardDiceTest {
 		assertTrue("Dice was able to be assigned to a Rollable alias",test);
 	}
 	
+	/**
+	 * Test to see if StandardDice is a child of Dice.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testIsDice() {
@@ -26,6 +39,9 @@ public class StandardDiceTest {
 		assertTrue("Dice was able to be assigned to a Dice alias",test);
 	}	
 	
+	/**
+	 * Test to see if StandardDice cannot be initialized with a null list of dice.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotNull() {
@@ -37,6 +53,9 @@ public class StandardDiceTest {
 		assertTrue("Dice threw exception upon receiving null dice array",test);
 	}
 	
+	/**
+	 * Test to see if StandardDice cannot be initialized with an empty list of dice.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotEmpty() {
@@ -48,6 +67,9 @@ public class StandardDiceTest {
 		assertTrue("Dice threw exception upon receiving empty dice array",test);
 	}
 	
+	/**
+	 * Test to see if StandardDice can be rolled to find an expected random number.
+	 */
 	@Test
 	public void testRoll() {
 		final int ROLLS = 100000;
@@ -58,6 +80,9 @@ public class StandardDiceTest {
 		}
 	}
 	
+	/**
+	 * Test to see if StandardDice can persist values between rolls.
+	 */
 	@Test
 	public void testGetValue() {
 		final int ROLLS = 100000;

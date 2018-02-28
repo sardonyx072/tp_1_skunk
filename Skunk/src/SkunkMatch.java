@@ -1,6 +1,14 @@
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * 
+ * This class is an experiment with game logic. It is to be abandoned in leiu of an actual implementation.
+ * 
+ * @author Mitchell Hoffmann & Eyad Shesli
+ *
+ */
 public class SkunkMatch {
 	private List<SkunkPlayer> players;
 	private List<SkunkGame> games;

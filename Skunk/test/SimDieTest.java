@@ -2,8 +2,18 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/**
+ * 
+ * Comprehensive testing for the SimDie class.
+ * 
+ * @author Mitchell Hoffmann & Eyad Shesli
+ *
+ */
 public class SimDieTest {
 
+	/**
+	 * Test to see if SimDie is a child of Rollable.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testIsRollable() {
@@ -15,6 +25,9 @@ public class SimDieTest {
 		assertTrue("Die object could be assigned to Rollable alias",test);
 	}
 
+	/**
+	 * Test to see if SimDie is a child of Die
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testIsDie() {
@@ -26,6 +39,9 @@ public class SimDieTest {
 		assertTrue("Die object could be assigned to Rollable alias",test);
 	}
 
+	/**
+	 * Test to see if SimDie cannot be initialized with a null list of values.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotNull() {
@@ -37,6 +53,9 @@ public class SimDieTest {
 		assertTrue("Die threw exception upon receiving a null value",test);
 	}
 
+	/**
+	 * Test to see if SimDie cannot be initialized with an empty list of values.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotEmpty() {
@@ -48,6 +67,9 @@ public class SimDieTest {
 		assertTrue("Die threw exception upon receiving a null value",test);
 	}
 
+	/**
+	 * Test to see if SimDie can be rolled deterministically given a circular buffer of values.
+	 */
 	@Test
 	public void testRoll() {
 		SimDie die = new SimDie(new int[] {1});
@@ -64,6 +86,9 @@ public class SimDieTest {
 		}
 	}
 
+	/**
+	 * Test to see if SimDie can persist values between rolls.
+	 */
 	@Test
 	public void testGetValue() {
 		SimDie die = new SimDie(new int[] {1});

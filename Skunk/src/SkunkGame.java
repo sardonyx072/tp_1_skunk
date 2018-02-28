@@ -1,5 +1,12 @@
 import java.util.Arrays;
 
+/**
+ * 
+ * A test class to experiment with game logic. This class is to be abandoned in leiu of an actual implementation.
+ * 
+ * @author Mitchell Hoffmann & Eyad Shesli
+ *
+ */
 public class SkunkGame {
 	private final int SKUNK = 1;
 	private final int DEUCE = 2;

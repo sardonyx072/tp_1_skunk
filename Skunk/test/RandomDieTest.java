@@ -2,8 +2,18 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/**
+ * 
+ * Comprehensive testing for the RandomDie class.
+ * 
+ * @author Mitchell Hoffmann & Eyad Shesli
+ *
+ */
 public class RandomDieTest {
 
+	/**
+	 * Test to see if RandomDie is a child of Rollable.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testIsRollable() {
@@ -15,6 +25,9 @@ public class RandomDieTest {
 		assertTrue("Die object could be assigned to Rollable alias",test);
 	}
 
+	/**
+	 * Test to see if RandomDie is a child of Die
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testIsDie() {
@@ -26,6 +39,9 @@ public class RandomDieTest {
 		assertTrue("Die object could be assigned to Rollable alias",test);
 	}
 
+	/**
+	 * Test to see if RandomDie can be initialized with a null probability distribution list.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotNull() {
@@ -37,6 +53,9 @@ public class RandomDieTest {
 		assertTrue("Die threw exception upon receiving a null value",test);
 	}
 
+	/**
+	 * Test to see if RandomDie can be initialized with an empty probability distribution list.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotEmpty() {
@@ -48,6 +67,9 @@ public class RandomDieTest {
 		assertTrue("Die threw exception upon receiving a null value",test);
 	}
 
+	/**
+	 * Test to see if RandomDie can roll random values.
+	 */
 	@Test
 	public void testRoll() {
 		final int ROLLS = 100000; 
@@ -77,6 +99,9 @@ public class RandomDieTest {
 		assertTrue("roll matched expected", 2 <= count && count <= 11);
 	}
 
+	/**
+	 * Test to see if RandomDie can presist the same value between rolling it.
+	 */
 	@Test
 	public void testGetValue() {
 		RandomDie die = new RandomDie(new int[] {1});

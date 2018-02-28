@@ -2,8 +2,18 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/**
+ * 
+ * Comprehensive testing for the StandardDie class.
+ * 
+ * @author Mitchell Hoffmann & Eyad Shesli
+ *
+ */
 public class StandardDieTest {
 
+	/**
+	 * Test to see if StandardDie is a child of Rollable.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testIsRollable() {
@@ -15,6 +25,9 @@ public class StandardDieTest {
 		assertTrue("Die object could be assigned to Rollable alias",test);
 	}
 
+	/**
+	 * Test to see if StandardDie is a child of Die.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testIsDie() {
@@ -26,6 +39,9 @@ public class StandardDieTest {
 		assertTrue("Die object could be assigned to Rollable alias",test);
 	}
 
+	/**
+	 * Test to see if StandardDie cannot be initialized with a null probability distribution (cannot be fabricated here).
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotNull() {
@@ -37,6 +53,9 @@ public class StandardDieTest {
 		assertTrue("Die threw exception upon receiving a null value",test);
 	}
 
+	/**
+	 * Test to see if StandardDie cannot be initialized with an empty probability distribution (cannot be fabricated here).
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotEmpty() {
@@ -48,6 +67,9 @@ public class StandardDieTest {
 		assertTrue("Die threw exception upon receiving a null value",test);
 	}
 
+	/**
+	 * Test to see if StandardDie can be rolled for a random value in an expected range.
+	 */
 	@Test
 	public void testRoll() {
 		final int ROLLS = 100000; 
@@ -65,6 +87,9 @@ public class StandardDieTest {
 		assertTrue("roll matched expected", 2 <= count && count <= 6);
 	}
 
+	/**
+	 * Test to see if StandardDie persists values between rolls.
+	 */
 	@Test
 	public void testGetValue() {
 		StandardDie die = new StandardDie();

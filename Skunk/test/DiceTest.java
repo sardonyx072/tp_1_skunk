@@ -2,8 +2,18 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/**
+ * 
+ * Comprehensive testing for the Dice class.
+ * 
+ * @author Mitchell Hoffmann & Eyad Shesli
+ *
+ */
 public class DiceTest {
 	
+	/**
+	 * Test to see if the dice group is a child of Rollable.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testIsRollable() {
@@ -16,6 +26,9 @@ public class DiceTest {
 		}
 	}
 	
+	/**
+	 * Test to see if the dice group cannot be initialized with a null list of dice.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotNull() {
@@ -27,6 +40,9 @@ public class DiceTest {
 		}
 	}
 	
+	/**
+	 * Test to see if the dice group cannot be initialized with an empty list of dice.
+	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void testNotEmpty() {
@@ -38,8 +54,12 @@ public class DiceTest {
 		}
 	}
 	
+	/**
+	 * Test to see if the dice group can be rolled altogether.
+	 */
 	@Test
 	public void testRoll() {
+		// TODO roll multiple dice together
 		int[] vals = new int[] {0,1,2,3,4,5,6,7,8,9,10,100,1000,512837697,9999,555,33,8,2,6,9,1,5,2,3,1,2,1,7,0,7,-108475,6,-1,1,0,8};
 		Dice dice = new Dice(new SimDie[] {new SimDie(vals)});
 		for (int i = 0; i < vals.length; i++) {
@@ -47,6 +67,9 @@ public class DiceTest {
 		}
 	}
 	
+	/**
+	 * Test to see if the same value persists in the dice.
+	 */
 	@Test
 	public void testGetValue() {
 		int[] vals = new int[] {0,1,2,3,4,5,6,7,8,9,10,100,1000,512837697,9999,555,33,8,2,6,9,1,5,2,3,1,2,1,7,0,7,-108475,6,-1,1,0,8};
