@@ -62,7 +62,7 @@ public class StandardDieTest {
 			}
 			assertTrue("roll matched expected", 1 <= test && test <= 6);
 		}
-		assertTrue("roll matched expected", 1 <= count && count <= 6);
+		assertTrue("roll matched expected", 2 <= count && count <= 6);
 	}
 
 	@Test
