@@ -27,6 +27,11 @@ public class Dice implements Rollable {
 	}
 	
 	/**
+	 * Return individual values of dice as an array.
+	 */
+	public int[] getValues() {return Arrays.asList(this.dice).stream().mapToInt(die -> die.getValue()).toArray();}
+	
+	/**
 	 * Uses a lambda function on a stream created from the dice list to quickly getValue on every die and return the sum.
 	 */
 	public int getValue() {return Arrays.asList(this.dice).stream().mapToInt(die -> die.getValue()).sum();}
