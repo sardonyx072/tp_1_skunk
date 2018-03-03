@@ -40,34 +40,6 @@ public class StandardDieTest {
 	}
 
 	/**
-	 * Test to see if StandardDie cannot be initialized with a null probability distribution (cannot be fabricated here).
-	 */
-	@SuppressWarnings("unused")
-	@Test
-	public void testNotNull() {
-		boolean test = true;
-		try {
-			Die die = new StandardDie();
-			test = false;
-		} catch (Exception e) {}
-		assertTrue("Die threw exception upon receiving a null value",test);
-	}
-
-	/**
-	 * Test to see if StandardDie cannot be initialized with an empty probability distribution (cannot be fabricated here).
-	 */
-	@SuppressWarnings("unused")
-	@Test
-	public void testNotEmpty() {
-		boolean test = true;
-		try {
-			Die die = new StandardDie();
-			test = false;
-		} catch (Exception e) {}
-		assertTrue("Die threw exception upon receiving a null value",test);
-	}
-
-	/**
 	 * Test to see if StandardDie can be rolled for a random value in an expected range.
 	 */
 	@Test

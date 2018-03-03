@@ -19,8 +19,6 @@ public class Game {
 		this.kitty = 0;
 		this.isEnded = false;
 		this.i = 0;
-		System.out.println(this.scores);
-		System.out.println(i);
 		this.currentTurn = new Turn(this.scores.keySet().toArray(new Player[this.scores.keySet().size()])[i]);
 		this.target = 100;
 		this.targetPlayer = null;
