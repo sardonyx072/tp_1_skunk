@@ -1,41 +1,33 @@
-import java.util.stream.IntStream;
 
 public class Turn {
 	private Player player;
-	private boolean loseScore;
 	private int score;
-	private Dice dice;
+	private int chipCost;
+	private boolean ended;
+	private Roll roll;
 	
 	public Turn (Player player) {
 		this.player = player;
-		this.loseScore = false;
 		this.score = 0;
-		this.dice = new StandardDice();
+		this.chipCost = 0;
+		this.roll = new Roll();
+		this.ended = false;
 	}
 	public Player getPlayer() {return this.player;}
-	public boolean getLoseScore() {return this.loseScore;}
 	public int getScore() {return this.score;}
-	public boolean roll() {
-		boolean endTurn = false;
-		this.dice.roll();
-		if (this.dice.getValue() == 2) { //double skunk
-			this.loseScore = true;
-			this.score = 0;
-			endTurn = true;
+	public int getChipCost() {return this.chipCost;}
+	public boolean isEnded() {return this.ended;}
+	public void roll() {
+		if (!this.ended) {
+			this.score += this.roll.roll();
+			System.out.println(this.player.getName() + " rolled a " + this.roll.getValue() + " which is a " + this.roll.getType().name() + " roll. Their total score for this turn is " + this.score + " so far.");
+			if (this.roll.getType().isGameScoreLost())
+				this.score = Integer.MIN_VALUE;
+			else if (this.roll.getType().isTurnScoreLost())
+				this.score = 0;
+			this.chipCost += this.roll.getType().getChipCost();
+			this.ended = this.roll.getType().isTurnEnded();
 		}
-		else if (this.dice.getValue() == 3) { //skunk deuce
-			
-			this.score = 0;
-			endTurn = true;
-		}
-		else if (IntStream.of(this.dice.getValues()).anyMatch(i -> i==1)) { // skunk
-			this.score = 0;
-			endTurn = true;
-		}
-		else {
-			this.score+=this.dice.getValue();
-			endTurn = false;
-		}
-		return endTurn;
 	}
+	public void end() {this.ended = true;}
 }

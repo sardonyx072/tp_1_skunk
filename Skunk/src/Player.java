@@ -1,11 +1,18 @@
 
-public class Player {
-	private String name;
+public class Player extends Person {
+	private int chips;
 	
-	public Player(String name) {
-		this.name = name;
+	public Player(String name, int chips) {
+		super(name);
+		this.chips = chips;
 	}
-	public String getName() {return this.name;}
-	
+	public void giveChips(int chips) {
+		this.chips+=chips;
+	}
+	public int takeChips(int chips) {
+		int taken = Math.min(this.chips, chips);
+		this.chips -= taken;
+		return taken;
+	}
 	// TODO stats?
 }
