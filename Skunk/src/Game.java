@@ -22,7 +22,7 @@ public class Game {
 		System.out.println(this.scores);
 		System.out.println(i);
 		this.currentTurn = new Turn(this.scores.keySet().toArray(new Player[this.scores.keySet().size()])[i]);
-		this.target = 30;
+		this.target = 100;
 		this.targetPlayer = null;
 	}
 	public LinkedHashMap<Player,Integer> getScores() {return this.scores;}
