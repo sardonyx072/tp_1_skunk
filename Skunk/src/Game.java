@@ -1,7 +1,11 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 
 public class Game {
+	private static Logger LOGGER = null;
 	private Dice dice = new StandardDice();
 	private CircularLinkedHashMap<Player,Integer> scores;
 	private boolean isEnded;
@@ -10,8 +14,9 @@ public class Game {
 	private Player targetPlayer;
 	private Player currentPlayer;
 	private int turnScore;
+	private int numGamesThisMatch;
 	
-	public Game(Player[] players, Dice dice) {
+	public Game(Player[] players, Dice dice) throws SecurityException, IOException {
 		this.scores = new CircularLinkedHashMap<Player,Integer>();
 		Arrays.asList(players).stream().forEach(player -> this.scores.put(player, 0));
 		this.kitty = 0;
@@ -20,6 +25,10 @@ public class Game {
 		this.targetPlayer = null;
 		this.currentPlayer = new ArrayList<Player>(this.scores.keySet()).get(0);
 		this.turnScore = 0;
+		this.numGamesThisMatch = 0;
+		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
+		LOGGER = Logger.getLogger(Game.class.getName());
+		LOGGER.addHandler(new FileHandler("./log/log.txt"));
 	}
 	public CircularLinkedHashMap<Player,Integer> getScores() {return this.scores;}
 	public boolean isEnded() {return this.isEnded;}
@@ -30,7 +39,7 @@ public class Game {
 	public int getCurrentTurnScore() {return this.turnScore;}
 	public void turnOptRoll() {
 		this.dice.roll();
-		System.out.println(this.currentPlayer.getName() + " rolled a " + this.dice.getValue() + " (" + RollType.find(this.dice) + ")" + "!");
+		LOGGER.info(this.currentPlayer.getName() + " rolled a " + this.dice.getValues()[0] + "+" + this.dice.getValues()[1] + "=" + this.dice.getValue() + " (" + RollType.find(this.dice) + ")" + "!");
 		if (RollType.find(this.dice).isTurnEnded()) {this.turnOptEnd();}
 		else {this.turnScore += this.dice.getValue();}
 	}
@@ -48,12 +57,17 @@ public class Game {
 		this.turnScore = 0;
 		this.kitty += this.currentPlayer.takeChips(type.getChipCost());
 		this.currentPlayer = this.scores.getKeyAfter(this.currentPlayer);
-		System.out.println("Passing the dice to " + this.currentPlayer.getName() + ".");
+		LOGGER.info("Passing the dice to " + this.currentPlayer.getName() + ".");
 		if (this.currentPlayer == this.targetPlayer) {
-			this.isEnded = true;
 			this.targetPlayer.giveChips(this.kitty);
-			System.out.println(this.targetPlayer.getName() + " won " + this.kitty + " chips!");
+			LOGGER.info(this.targetPlayer.getName() + " won " + this.kitty + " chips!");
 			this.kitty = 0;
+			this.numGamesThisMatch++;
+			if (this.scores.keySet().stream().filter(player -> player.getChips() > 0).count() == 1) {
+				LOGGER.info(this.currentPlayer.getName() + " won the match!");
+				LOGGER.info("The match lasted " + this.numGamesThisMatch + " games!");
+				this.isEnded = true;
+			}
 		}
 	}
 }

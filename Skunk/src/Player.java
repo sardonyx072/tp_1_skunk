@@ -8,6 +8,9 @@ public class Player extends Person {
 			throw new IllegalArgumentException("invalid number of starting chips for player");
 		this.chips = chips;
 	}
+	public int getChips() {
+		return this.chips;
+	}
 	public void giveChips(int chips) {
 		this.chips+=chips;
 	}
