@@ -16,6 +16,7 @@ public class Game {
 	private int turnScore;
 	private int numGamesThisMatch;
 	
+	//dice class member,, disallow duplicate players names
 	public Game(Player[] players, Dice dice) throws SecurityException, IOException {
 		this.scores = new CircularLinkedHashMap<Player,Integer>();
 		Arrays.asList(players).stream().forEach(player -> this.scores.put(player, 0));
