@@ -1,12 +1,14 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Game {
 	private static Logger LOGGER = null;
-	private Dice dice = new StandardDice();
+	private Dice dice;
 	private CircularLinkedHashMap<Player,Integer> scores;
 	private boolean isEnded;
 	private int kitty;
@@ -16,10 +18,11 @@ public class Game {
 	private int turnScore;
 	private int numGamesThisMatch;
 	
-	//dice class member,, disallow duplicate players names
+	// disallow duplicate players names
 	public Game(Player[] players, Dice dice) throws SecurityException, IOException {
 		this.scores = new CircularLinkedHashMap<Player,Integer>();
 		Arrays.asList(players).stream().forEach(player -> this.scores.put(player, 0));
+		this.dice = dice;
 		this.kitty = 0;
 		this.isEnded = false;
 		this.target = 100;
@@ -63,6 +66,7 @@ public class Game {
 			this.targetPlayer.giveChips(this.kitty);
 			LOGGER.info(this.targetPlayer.getName() + " won " + this.kitty + " chips!");
 			this.kitty = 0;
+			this.scores.keySet().stream().forEach(player -> this.scores.put(player, 0));
 			this.numGamesThisMatch++;
 			if (this.scores.keySet().stream().filter(player -> player.getChips() > 0).count() == 1) {
 				LOGGER.info(this.currentPlayer.getName() + " won the match!");
@@ -71,4 +75,21 @@ public class Game {
 			}
 		}
 	}
+//	public String toString() {
+//		final int MIN_GAME_WIDTH = 2, MAX_GAME_WIDTH = 4;
+//		final int MIN_NAME_WIDTH = 6, MAX_NAME_WIDTH = 16;
+//		final int MIN_CHIPS_WIDTH = 4, MAX_CHIPS_WIDTH = 14;
+//		final int MIN_SCORE_WIDTH = 4, MAX_SCORE_WIDTH = 14;
+//		
+//		assert MIN_GAME_WIDTH <= MAX_GAME_WIDTH;
+//		assert MIN_NAME_WIDTH <= MAX_NAME_WIDTH;
+//		assert MIN_CHIPS_WIDTH <= MAX_CHIPS_WIDTH;
+//		assert MIN_SCORE_WIDTH <= MAX_SCORE_WIDTH;
+//		
+//		int game_width = Math.max(MIN_GAME_WIDTH, Math.min(MAX_GAME_WIDTH, this.numGamesThisMatch));
+//		int name_width = Math.max(MIN_NAME_WIDTH,Math.min(MAX_NAME_WIDTH,Collections.max(this.scores.keySet().stream().map(p -> p.getName().length()).collect(Collectors.toList()))));
+//		int chips_width = Math.max(MIN_CHIPS_WIDTH,Math.min(MAX_NAME_WIDTH,Integer.toString(this.scores.keySet().stream().mapToInt(p -> p.getChips()).sum()).length()));
+//		int score_width = Math.max(MIN_SCORE_WIDTH,Math.min(MAX_NAME_WIDTH,Collections.max(this.scores.values())));
+//		StringBuilder str = new StringBuilder();
+//	}
 }
