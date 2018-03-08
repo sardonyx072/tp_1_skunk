@@ -1,3 +1,4 @@
+package main;
 
 public class Player extends Person {
 	private int chips;

@@ -1,6 +1,11 @@
+package test;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import main.Dice;
+import main.Rollable;
+import main.StandardDice;
 
 /**
  * 

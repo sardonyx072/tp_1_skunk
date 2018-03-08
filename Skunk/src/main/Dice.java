@@ -1,4 +1,6 @@
+package main;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * 
@@ -11,6 +13,7 @@ import java.util.Arrays;
  */
 public class Dice implements Rollable {
 	private Die[] dice;
+	private HashMap<Integer,Integer> stats;
 	
 	/**
 	 * Constructor for Dice. Must be provided with a non-null and non-empty list of some type of dice, which
@@ -23,7 +26,8 @@ public class Dice implements Rollable {
 			throw new NullPointerException("null dice list given to dice");
 		else if (dice.length == 0)
 			throw new IllegalArgumentException("no dice given to dice");
-		this.dice = dice; 
+		this.dice = dice;
+		this.stats = new HashMap<Integer,Integer>();
 	}
 	
 	/**

@@ -1,6 +1,12 @@
+package test;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import main.Die;
+import main.RandomDie;
+import main.Rollable;
+import main.SimDie;
 
 /**
  * 

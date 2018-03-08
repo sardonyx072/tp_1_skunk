@@ -1,3 +1,4 @@
+package main;
 import java.util.stream.IntStream;
 
 public enum RollType {
