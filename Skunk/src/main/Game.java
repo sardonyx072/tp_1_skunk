@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -18,8 +19,8 @@ public class Game {
 	private Player currentPlayer;
 	private int turnScore;
 	private int numGamesThisMatch;
+	private DiceStats stats;
 	
-	// disallow duplicate players names
 	public Game(Player[] players, Dice dice) throws SecurityException, IOException {
 		this.scores = new CircularLinkedHashMap<Player,Integer>();
 		Arrays.asList(players).stream().forEach(player -> this.scores.put(player, 0));
@@ -31,6 +32,7 @@ public class Game {
 		this.currentPlayer = new ArrayList<Player>(this.scores.keySet()).get(0);
 		this.turnScore = 0;
 		this.numGamesThisMatch = 0;
+		this.stats = new DiceStats();
 		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
 		LOGGER = Logger.getLogger(Game.class.getName());
 		LOGGER.addHandler(new FileHandler("./log/log.txt"));
@@ -42,8 +44,10 @@ public class Game {
 	public Player getTargetPlayer() {return this.targetPlayer;}
 	public Player getCurrentPlayer() {return this.currentPlayer;}
 	public int getCurrentTurnScore() {return this.turnScore;}
+	public DiceStats getStats() {return this.stats;}
 	public void turnOptRoll() {
 		this.dice.roll();
+		this.stats.add(this.currentPlayer, RollType.find(this.dice), this.dice.getValue());
 		LOGGER.info(this.currentPlayer.getName() + " rolled a " + this.dice.getValues()[0] + "+" + this.dice.getValues()[1] + "=" + this.dice.getValue() + " (" + RollType.find(this.dice) + ")" + "!");
 		if (RollType.find(this.dice).isTurnEnded()) {this.turnOptEnd();}
 		else {this.turnScore += this.dice.getValue();}
