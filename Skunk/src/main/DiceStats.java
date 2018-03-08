@@ -19,7 +19,7 @@ public class DiceStats {
 	public int getNumOfTypeForPlayer(Player player, RollType type) {return (int) this.points.stream().filter(point -> point.getType() == type).filter(point -> point.getPlayer() == player).count();}
 	public int getNumOfValue(int value) {return (int) this.points.stream().filter(point -> point.getValue() == value).count();}
 	public int[] getValues() {
-		int[] result = new int[this.points.stream().mapToInt(point -> point.getValue()).max().getAsInt()];
+		int[] result = new int[this.points.stream().mapToInt(point -> point.getValue()).max().getAsInt()+1];
 		this.points.stream().mapToInt(point -> point.getValue()).forEach(point -> result[point]++);
 		return result;
 	}
