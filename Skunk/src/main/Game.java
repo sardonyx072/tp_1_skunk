@@ -2,11 +2,8 @@ package main;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class Game {
 	private static Logger LOGGER = null;
@@ -80,21 +77,4 @@ public class Game {
 			}
 		}
 	}
-//	public String toString() {
-//		final int MIN_GAME_WIDTH = 2, MAX_GAME_WIDTH = 4;
-//		final int MIN_NAME_WIDTH = 6, MAX_NAME_WIDTH = 16;
-//		final int MIN_CHIPS_WIDTH = 4, MAX_CHIPS_WIDTH = 14;
-//		final int MIN_SCORE_WIDTH = 4, MAX_SCORE_WIDTH = 14;
-//		
-//		assert MIN_GAME_WIDTH <= MAX_GAME_WIDTH;
-//		assert MIN_NAME_WIDTH <= MAX_NAME_WIDTH;
-//		assert MIN_CHIPS_WIDTH <= MAX_CHIPS_WIDTH;
-//		assert MIN_SCORE_WIDTH <= MAX_SCORE_WIDTH;
-//		
-//		int game_width = Math.max(MIN_GAME_WIDTH, Math.min(MAX_GAME_WIDTH, this.numGamesThisMatch));
-//		int name_width = Math.max(MIN_NAME_WIDTH,Math.min(MAX_NAME_WIDTH,Collections.max(this.scores.keySet().stream().map(p -> p.getName().length()).collect(Collectors.toList()))));
-//		int chips_width = Math.max(MIN_CHIPS_WIDTH,Math.min(MAX_NAME_WIDTH,Integer.toString(this.scores.keySet().stream().mapToInt(p -> p.getChips()).sum()).length()));
-//		int score_width = Math.max(MIN_SCORE_WIDTH,Math.min(MAX_NAME_WIDTH,Collections.max(this.scores.values())));
-//		StringBuilder str = new StringBuilder();
-//	}
 }

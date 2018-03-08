@@ -7,6 +7,7 @@ import main.Person;
 
 public class PersonTest {
 
+	@SuppressWarnings("unused")
 	@Test
 	public void testName() {
 		boolean test = true;
