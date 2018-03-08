@@ -68,13 +68,33 @@ public class DieTest {
 			Die die = new SimDie(new int[] {});
 			test = false;
 		} catch (Exception e) {}
-		assertTrue("Die threw exception upon receiving a null value",test);
+		assertTrue("Die threw exception upon receiving an empty value",test);
 		test = true;
 		try {
 			Die die = new RandomDie(new int[] {});
 			test = false;
 		} catch (Exception e) {}
-		assertTrue("Die threw exception upon receiving a null value",test);
+		assertTrue("Die threw exception upon receiving an empty value",test);
+	}
+
+	/**
+	 * Test to see if Die cannot be initialized with an empty list of values.
+	 */
+	@SuppressWarnings("unused")
+	@Test
+	public void testNotNegative() {
+		boolean test = true;
+		try {
+			Die die = new SimDie(new int[] {-1});
+			test = false;
+		} catch (Exception e) {}
+		assertTrue("Die threw exception upon receiving a negative value",test);
+		test = true;
+		try {
+			Die die = new RandomDie(new int[] {-1});
+			test = false;
+		} catch (Exception e) {}
+		assertTrue("Die threw exception upon receiving a negative value",test);
 	}
 
 }

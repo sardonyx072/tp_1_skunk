@@ -1,5 +1,7 @@
 package main;
 
+import java.util.stream.IntStream;
+
 /**
  * 
  * Die is a abstract or template type for all types of die. It is Rollable, but the behavior is defined in child classes
@@ -22,6 +24,8 @@ public abstract class Die implements Rollable {
 			throw new NullPointerException("null value array passed to Die");
 		else if (values.length == 0)
 			throw new IllegalArgumentException("empty value array passed to Die");
+		else if (IntStream.of(values).anyMatch(value -> value < 0))
+			throw new IllegalArgumentException("dice cannot roll negative values or have negative probability");
 		this.values = values;
 	}
 }

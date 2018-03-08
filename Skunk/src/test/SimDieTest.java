@@ -73,6 +73,20 @@ public class SimDieTest {
 	}
 
 	/**
+	 * Test to see if SimDie cannot be initialized with an empty list of values.
+	 */
+	@SuppressWarnings("unused")
+	@Test
+	public void testNotNegative() {
+		boolean test = true;
+		try {
+			Die die = new SimDie(new int[] {-1});
+			test = false;
+		} catch (Exception e) {}
+		assertTrue("Die threw exception upon receiving a negative value",test);
+	}
+
+	/**
 	 * Test to see if SimDie can be rolled deterministically given a circular buffer of values.
 	 */
 	@Test
@@ -84,7 +98,7 @@ public class SimDieTest {
 		assertEquals("roll matched expected", 2, die.roll());
 		assertEquals("roll matched expected", 1, die.roll());
 		assertEquals("roll matched expected", 2, die.roll());
-		int[] vals = new int[] {-9999, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 873240823, -7489349, 5};
+		int[] vals = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 873240823, 5};
 		die = new SimDie(vals);
 		for (int i = 0; i < vals.length; i++) {
 			assertEquals("roll matched expected", vals[i+1 >= vals.length ? 0 : i+1],die.roll());
@@ -104,7 +118,7 @@ public class SimDieTest {
 		die.roll();
 		assertEquals("roll matched expected", 2, die.getValue());
 		assertEquals("roll matched expected", 2, die.getValue());
-		int[] vals = new int[] {-9999, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 873240823, -7489349, 5};
+		int[] vals = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 873240823, 5};
 		die = new SimDie(vals);
 		for (int i = 0; i < vals.length; i++) {
 			assertEquals(die.roll(),die.getValue());

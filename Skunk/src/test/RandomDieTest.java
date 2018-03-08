@@ -73,6 +73,20 @@ public class RandomDieTest {
 	}
 
 	/**
+	 * Test to see if RandomDie can be initialized with an empty probability distribution list.
+	 */
+	@SuppressWarnings("unused")
+	@Test
+	public void testNotNegative() {
+		boolean test = true;
+		try {
+			Die die = new RandomDie(new int[] {-1});
+			test = false;
+		} catch (Exception e) {}
+		assertTrue("Die threw exception upon receiving a negative value",test);
+	}
+
+	/**
 	 * Test to see if RandomDie can roll random values.
 	 */
 	@Test
