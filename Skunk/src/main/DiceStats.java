@@ -9,31 +9,42 @@ public class DiceStats {
 	public DiceStats() {
 		this.points = new ArrayList<DiceStatPoint>();
 	}
-	public void add(Player player, RollType type, int value) {
-		this.points.add(new DiceStatPoint(player,type,value));
+	public void add(int game, Player player, RollType type, int value) {
+		this.points.add(new DiceStatPoint(game,player,type,value));
 	}
-	public int getTotal() {return this.points.stream().mapToInt(point -> point.getValue()).sum();}
-	public int getTotalForPlayer(Player player) {return this.points.stream().filter(point -> point.getPlayer() == player).mapToInt(point -> point.getValue()).sum();}
-	public int getNumForPlayer(Player player) {return (int) this.points.stream().filter(point -> point.getPlayer() == player).count();}
-	public int getNumOfType(RollType type) {return (int) this.points.stream().filter(point -> point.getType() == type).count();}
-	public int getNumOfTypeForPlayer(Player player, RollType type) {return (int) this.points.stream().filter(point -> point.getType() == type).filter(point -> point.getPlayer() == player).count();}
-	public int getNumOfValue(int value) {return (int) this.points.stream().filter(point -> point.getValue() == value).count();}
-	public int[] getValues() {
+	public int getTotal(int game, Player player, RollType type, int value) {return this.points.stream()
+			.filter(point -> game != -1 ? point.getGame() == game : true)
+			.filter(point -> player != null ? point.getPlayer() == player : true)
+			.filter(point -> type != null ? point.getType() == type : true)
+			.filter(point -> value != -1 ? point.getValue() == value : true)
+			.mapToInt(point -> point.getValue()).sum();
+	}
+	public int getNum(int game, Player player, RollType type, int value) {return (int) this.points.stream()
+			.filter(point -> game != -1 ? point.getGame() == game : true)
+			.filter(point -> player != null ? point.getPlayer() == player : true)
+			.filter(point -> type != null ? point.getType() == type : true)
+			.filter(point -> value != -1 ? point.getValue() == value : true)
+			.count();
+	}
+	public int[] getDistribution() {
 		int[] result = new int[this.points.stream().mapToInt(point -> point.getValue()).max().getAsInt()+1];
 		this.points.stream().mapToInt(point -> point.getValue()).forEach(point -> result[point]++);
 		return result;
 	}
 	
 	private final class DiceStatPoint {
+		private int game;
 		private Player player;
 		private RollType type;
 		private int value;
 		
-		public DiceStatPoint(Player player, RollType type, int value) {
+		public DiceStatPoint(int game, Player player, RollType type, int value) {
+			this.game = game;
 			this.player = player;
 			this.type = type;
 			this.value = value;
 		}
+		public int getGame() {return this.game;}
 		public Player getPlayer() {return this.player;}
 		public RollType getType() {return this.type;}
 		public int getValue() {return this.value;}

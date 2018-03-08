@@ -47,7 +47,7 @@ public class Game {
 	public DiceStats getStats() {return this.stats;}
 	public void turnOptRoll() {
 		this.dice.roll();
-		this.stats.add(this.currentPlayer, RollType.find(this.dice), this.dice.getValue());
+		this.stats.add(this.numGamesThisMatch,this.currentPlayer, RollType.find(this.dice), this.dice.getValue());
 		LOGGER.info(this.currentPlayer.getName() + " rolled a " + this.dice.getValues()[0] + "+" + this.dice.getValues()[1] + "=" + this.dice.getValue() + " (" + RollType.find(this.dice) + ")" + "!");
 		if (RollType.find(this.dice).isTurnEnded()) {this.turnOptEnd();}
 		else {this.turnScore += this.dice.getValue();}
