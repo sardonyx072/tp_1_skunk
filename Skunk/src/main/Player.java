@@ -5,7 +5,7 @@ public class Player extends Person {
 	
 	public Player(String name, int chips) {
 		super(name);
-		if (chips < 1)
+		if (chips < 0)
 			throw new IllegalArgumentException("invalid number of starting chips for player");
 		this.chips = chips;
 	}
@@ -13,6 +13,7 @@ public class Player extends Person {
 		return this.chips;
 	}
 	public void giveChips(int chips) {
+		if (chips < 0) throw new IllegalArgumentException("cannot give negative chips");
 		this.chips+=chips;
 	}
 	public int takeChips(int chips) {
