@@ -41,6 +41,7 @@ public class Game {
 	public Player getTargetPlayer() {return this.targetPlayer;}
 	public Player getCurrentPlayer() {return this.currentPlayer;}
 	public int getCurrentTurnScore() {return this.turnScore;}
+	public int getNumGames() {return this.numGamesThisMatch;}
 	public DiceStats getStats() {return this.stats;}
 	public void turnOptRoll() {
 		this.dice.roll();
@@ -69,6 +70,8 @@ public class Game {
 			LOGGER.info(this.targetPlayer.getName() + " won " + this.kitty + " chips!");
 			this.kitty = 0;
 			this.scores.keySet().stream().forEach(player -> this.scores.put(player, 0));
+			this.target = 100;
+			this.targetPlayer = null;
 			this.numGamesThisMatch++;
 			if (this.scores.keySet().stream().filter(player -> player.getChips() > 0).count() == 1) {
 				LOGGER.info(this.currentPlayer.getName() + " won the match!");
