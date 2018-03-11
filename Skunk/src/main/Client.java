@@ -7,9 +7,9 @@ public abstract class Client implements Runnable {
 	public abstract void getPlayers(); // get a list of players
 	public abstract void update(); //update UI
 	public void actRoll() {
-		this.game.turnOptRoll();
+		this.game.actRoll();
 	}
 	public void actEnd() {
-		this.game.turnOptEnd();
+		this.game.actEnd();
 	}
 }

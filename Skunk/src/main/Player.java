@@ -1,10 +1,15 @@
 package main;
 
+import java.util.UUID;
+
 public class Player extends Person {
 	private int chips;
 	
 	public Player(String name, int chips) {
-		super(name);
+		this(name,UUID.randomUUID(),chips);
+	}
+	public Player(String name, UUID uuid, int chips) {
+		super(name, uuid);
 		if (chips < 0)
 			throw new IllegalArgumentException("invalid number of starting chips for player");
 		this.chips = chips;

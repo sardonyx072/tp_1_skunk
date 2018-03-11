@@ -7,9 +7,9 @@ public class ClientStub {
 		Game game = new Game(players, new StandardDice());
 		while (!game.isEnded()) {
 			if (game.getCurrentTurnScore() < 20)
-				game.turnOptRoll();
+				game.actRoll();
 			else
-				game.turnOptEnd();
+				game.actEnd();
 		}
 	}
 }

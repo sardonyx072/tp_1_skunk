@@ -1,5 +1,8 @@
 /.settings/
 /bin/
 /log/
+/sav/
+.log
+.sav
 .classpath
 .project

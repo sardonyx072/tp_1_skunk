@@ -32,11 +32,12 @@ public class SimpleCommandLnInterface {
 			System.out.println("choose one two options: 1-Roll again  2-End your turn");
 			
 			int choice = scan.nextInt();
-			if (choice == 1) game.turnOptRoll();
+			if (choice == 1) game.actRoll();
 			
-			else if (choice == 2) game.turnOptEnd(); 
+			else if (choice == 2) game.actEnd(); 
 
 		}
+		scan.close();
 	}
 
 }

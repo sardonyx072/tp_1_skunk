@@ -1,5 +1,6 @@
 package main;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Scanner;
 
 public class CommandLineClient extends Client {
 	private static final int NAME_LENGTH_LONG = 32, NAME_LENGTH_SHORT = 8, GAME_LENGTH = 4;
+	private static final String DEFAULT_SAVE_LOCATION = "./sav/", SAVE_EXTENSION = "sav";
 	private Scanner in;
 	private boolean quit;
 	
@@ -52,7 +54,42 @@ public class CommandLineClient extends Client {
 				}
 				break;
 			case 1: //load
-				info = "This option not yet implemented. Choose another option.";
+				File[] files = new File(DEFAULT_SAVE_LOCATION).listFiles();
+				System.out.println("Saved games:");
+				System.out.println(" 0: Enter file...");
+				for (int i = 0; i < files.length; i++)
+					if (files[i].getName().substring(files[i].getName().lastIndexOf('.')+1, files[i].getName().length()).equals(SAVE_EXTENSION))
+						System.out.println(" " + (i+1) + ": " + DEFAULT_SAVE_LOCATION + files[i].getName());
+				System.out.print("Choose a saved file to load: ");
+				inInt = this.in.nextInt();
+				this.in.nextLine();
+				if (inInt == 0) {
+					System.out.print("Enter save file path and name: ");
+					inStr = this.in.nextLine();
+					File file = new File(inStr);
+					if (file.exists() && file.getName().substring(file.getName().lastIndexOf('.')+1, file.getName().length()).equals(SAVE_EXTENSION)) {
+						try {
+							this.game = Game.load(file.getAbsolutePath());
+							done = true;
+						} catch (Exception e) {
+							info = "Something went wrong loading the file.";
+						}
+					}
+					else {
+						info = "Invalid file entered. Please enter a valid file.";
+					}
+				}
+				else if (0 < inInt && inInt <= files.length) {
+					try {
+						this.game = Game.load(files[inInt-1].getAbsolutePath());
+						done = true;
+					} catch (Exception e) {
+						info = "Something went wrong loading the file.";
+					}
+				}
+				else {
+					info = "Invalid save file selection. Please enter a valid selection.";
+				}
 				break;
 			case 2: //start over
 				System.out.print("Are you sure? [y/n]: ");
@@ -168,6 +205,7 @@ public class CommandLineClient extends Client {
 		System.out.print("Choose option: ");
 		int inInt = this.in.nextInt();
 		this.in.nextLine();
+		File[] files = new File(DEFAULT_SAVE_LOCATION).listFiles();
 		switch (inInt) {
 		case 0: //quit
 			System.out.print("Are you sure? [y/n]: ");
@@ -179,10 +217,95 @@ public class CommandLineClient extends Client {
 			}
 			break;
 		case 1: //load
-			info = "This option not yet implemented. Choose another option.";
+			System.out.println("Saved games:");
+			System.out.println(" 0: Enter file...");
+			for (int i = 0; i < files.length; i++)
+				if (files[i].getName().substring(files[i].getName().lastIndexOf('.')+1, files[i].getName().length()).equals(SAVE_EXTENSION))
+					System.out.println(" " + (i+1) + ": " + DEFAULT_SAVE_LOCATION + files[i].getName());
+			System.out.print("Choose a saved file to load: ");
+			inInt = this.in.nextInt();
+			this.in.nextLine();
+			if (inInt == 0) {
+				System.out.print("Enter save file path and name: ");
+				inStr = this.in.nextLine();
+				File file = new File(inStr);
+				if (file.exists() && file.getName().substring(file.getName().lastIndexOf('.')+1, file.getName().length()).equals(SAVE_EXTENSION)) {
+					try {
+						this.game = Game.load(file.getAbsolutePath());
+					} catch (Exception e) {
+						info = "Something went wrong loading the file.";
+					}
+				}
+				else {
+					info = "Invalid file entered. Please enter a valid file.";
+				}
+			}
+			else if (0 < inInt && inInt <= files.length) {
+				try {
+					this.game = Game.load(files[inInt-1].getAbsolutePath());
+				} catch (Exception e) {
+					info = "Something went wrong loading the file.";
+				}
+			}
+			else {
+				info = "Invalid save file selection. Please enter a valid selection.";
+			}
 			break;
 		case 2: //save
-			info = "This option not yet implemented. Choose another option.";
+			System.out.println("Saved games:");
+			System.out.println(" 0: Enter file...");
+			for (int i = 0; i < files.length; i++)
+				if (files[i].getName().substring(files[i].getName().lastIndexOf('.')+1, files[i].getName().length()).equals(SAVE_EXTENSION))
+					System.out.println(" " + (i+1) + ": " + DEFAULT_SAVE_LOCATION + files[i].getName());
+			System.out.print("Choose a file to save to: ");
+			inInt = this.in.nextInt();
+			this.in.nextLine();
+			if (inInt == 0) {
+				System.out.print("Enter save file path and name: ");
+				inStr = this.in.nextLine();
+				if (inStr.lastIndexOf('/') <= 0) inStr = DEFAULT_SAVE_LOCATION + inStr;
+				if (inStr.lastIndexOf('.') < inStr.lastIndexOf('/')) inStr = inStr + "." + SAVE_EXTENSION;
+				File file = new File(inStr);
+				if (file.exists() && file.getName().substring(file.getName().lastIndexOf('.')+1, file.getName().length()).equals(SAVE_EXTENSION)) {
+					System.out.print("File already exists. Overwrite? [y/n]: ");
+					inStr = this.in.nextLine();
+					if (inStr.length() != 1 || !(inStr.toLowerCase().charAt(0) == 'y' || inStr.toLowerCase().charAt(0) == 'n')) info = "Invalid confirmation.";
+					else {
+						if (inStr.toLowerCase().charAt(0) == 'y')
+							try {
+								Game.save(this.game, file.getAbsolutePath());
+								info  = "Game saved to " + file.getAbsolutePath();
+							} catch (Exception e) {
+								info = "Something went wrong saving the file.";
+							}
+						else info = "Choose a valid option from the list below.";
+					}
+				}
+				else {
+					try {
+						Game.save(this.game,file.getAbsolutePath());
+					} catch (Exception e) {
+						info = "Something went wrong saving the file.";
+					}
+				}
+			}
+			else if (0 < inInt && inInt <= files.length) {
+				System.out.print("File already exists. Overwrite? [y/n]: ");
+				inStr = this.in.nextLine();
+				if (inStr.length() != 1 || !(inStr.toLowerCase().charAt(0) == 'y' || inStr.toLowerCase().charAt(0) == 'n')) info = "Invalid confirmation.";
+				else {
+					if (inStr.toLowerCase().charAt(0) == 'y')
+						try {
+							Game.save(this.game, files[inInt-1].getAbsolutePath());
+						} catch (Exception e) {
+							info = "Something went wrong saving the file.";
+						}
+					else info = "Choose a valid option from the list below.";
+				}
+			}
+			else {
+				info = "Invalid save file selection. Please enter a valid selection.";
+			}
 			break;
 		case 3: //roll
 			this.actRoll();
@@ -195,12 +318,6 @@ public class CommandLineClient extends Client {
 			break;
 		}
 		return info;
-	}
-	public void actRoll() {
-		this.game.turnOptRoll();
-	}
-	public void actEnd() {
-		this.game.turnOptEnd();
 	}
 	public static void main(String[] args) {
 		CommandLineClient client = new CommandLineClient();
