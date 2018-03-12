@@ -11,4 +11,5 @@ public class StandardDice extends Dice {
 	public StandardDice() {
 		super(new StandardDie[] {new StandardDie(),new StandardDie()});
 	}
+	public String toString() {return this.getClass().getName();}
 }

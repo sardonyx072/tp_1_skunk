@@ -41,4 +41,6 @@ public class Dice implements Rollable {
 	 * Uses a lambda function on a stream created from the dice list to quickly roll every die and return the sum of all results.
 	 */
 	public int roll() {return Arrays.asList(this.dice).stream().mapToInt(die -> die.roll()).sum();}
+	
+	public String toString() {return this.getClass().getName() + Arrays.asList(this.dice).stream().map(die -> die.getValues()).reduce("", (die1, die2) -> die1 + " " + die2);}
 }

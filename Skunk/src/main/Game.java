@@ -53,9 +53,6 @@ public class Game {
 		this.turnScore = 0;
 		this.numGamesThisMatch = 0;
 		this.stats = new Stat();
-//		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
-//		LOGGER = Logger.getLogger(Game.class.getName());
-//		LOGGER.addHandler(new FileHandler("./log/log.txt"));
 	}
 	public CircularLinkedHashMap<Player,Integer> getScores() {return this.scores;}
 	public boolean isEnded() {return this.isEnded;}
@@ -122,16 +119,41 @@ public class Game {
 			writer = new BufferedWriter(new FileWriter(file));
 			writer.write(":Players");
 			for (Player player : game.scores.keySet())
-				writer.write("\n" + player.getUUID() + SEPARATOR + player.getName() + SEPARATOR + player.getChips());
+				writer.write("\n" + player.getUUID() + SEPARATOR + player.getName() + SEPARATOR + player.getChips() + SEPARATOR + game.scores.get(player));
+			LOGGER.info("Wrote all players to save file");
 			writer.write("\n");
 			writer.write(":Game");
 			writer.write("\n");
-			writer.write(game.dice.getClass().getName());
+			writer.write("Dice" + SEPARATOR + game.dice.toString());
+			LOGGER.info("Wrote dice to save file");
+			writer.write("\n");
+			writer.write("GameNo" + SEPARATOR + game.numGamesThisMatch);
+			LOGGER.info("Wrote game no to save file");
+			writer.write("\n");
+			writer.write("Kitty" + SEPARATOR + game.kitty);
+			LOGGER.info("Wrote kitty to save file");
+			writer.write("\n");
+			writer.write("Target" + SEPARATOR + game.target);
+			LOGGER.info("Wrote target to save file");
+			writer.write("\n");
+			writer.write("TargetPlayer" + SEPARATOR + (game.targetPlayer != null ? game.targetPlayer.getUUID().toString() : "null"));
+			LOGGER.info("Wrote target player to save file");
+			writer.write("\n");
+			writer.write("CurrentPlayer" + SEPARATOR + game.currentPlayer.getUUID().toString());
+			LOGGER.info("Wrote current player to save file");
+			writer.write("\n");
+			writer.write("TurnScore" + SEPARATOR + game.turnScore);
+			LOGGER.info("Wrote turn score to save file");
+			writer.write("\n");
+			writer.write("isEnded" + SEPARATOR + game.isEnded);
+			LOGGER.info("Wrote is ended to save file");
 			writer.write("\n");
 			writer.write(game.stats.printHistory(SEPARATOR));
-		} catch (IOException e) {
+			LOGGER.info("Wrote history to save file");
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			LOGGER.info("Exception!");
 		} finally {
 			try {
 				writer.close();
@@ -146,40 +168,91 @@ public class Game {
 		BufferedReader reader = null;
 		try {
 			List<Player> players = new ArrayList<Player>();
+			List<Integer> scores = new ArrayList<Integer>();
 			Dice dice = null;
+			String[] parts;
 			LOGGER.info("Attempting to load game from file \"" + file + "\"...");
 			reader = new BufferedReader(new FileReader(new File(file)));
+			// players
 			String in = reader.readLine();
 			assert in.equals(":Players");
 			while (in != null && (in = reader.readLine()) != null && !in.equals(":Game")) {
-				String[] parts = in.split(SEPARATOR);
+				parts = in.split(SEPARATOR);
 				players.add(new Player(parts[1],UUID.fromString(parts[0]),Integer.parseInt(parts[2])));
+				scores.add(Integer.parseInt(parts[3]));
 			}
-			if (in != null && (in = reader.readLine()) != null) {
-				dice = (Dice) Class.forName(in).getConstructor().newInstance(new Object[] {});
-			}
+			LOGGER.info("loaded players");
+			// dice
+			in = reader.readLine();
+			parts = in.split(SEPARATOR);
+			assert parts[0].equals("Dice");
+			dice = (Dice) Class.forName(parts[1]).getConstructor().newInstance(new Object[] {});
+			LOGGER.info("loaded dice");
 			game = new Game(players.toArray(new Player[players.size()]),dice);
+			for (int i = 0; i < players.size(); i++)
+				game.scores.put(players.get(i), scores.get(i));
+			// game no
+			in = reader.readLine();
+			parts = in.split(SEPARATOR);
+			assert parts[0].equals("GameNo");
+			game.numGamesThisMatch = Integer.parseInt(parts[1]);
+			LOGGER.info("loaded game no");
+			// kitty
+			in = reader.readLine();
+			parts = in.split(SEPARATOR);
+			assert parts[0].equals("Kitty");
+			game.kitty = Integer.parseInt(parts[1]);
+			LOGGER.info("loaded kitty");
+			// target
+			in = reader.readLine();
+			parts = in.split(SEPARATOR);
+			assert parts[0].equals("Target");
+			game.target = Integer.parseInt(parts[1]);
+			LOGGER.info("loaded target");
+			// target player
+			in = reader.readLine();
+			parts = in.split(SEPARATOR);
+			assert parts[0].equals("TargetPlayer");
+			final String temp1 = parts[1];
+			game.targetPlayer = (temp1.equals("null") ? null : (Player) game.scores.keySet().stream().filter(player -> player.getUUID().equals(UUID.fromString(temp1))).toArray()[0]);
+			LOGGER.info("loaded targetplayer");
+			// current player
+			in = reader.readLine();
+			parts = in.split(SEPARATOR);
+			assert parts[0].equals("CurrentPlayer");
+			final String temp2 = parts[1];
+			game.currentPlayer = (Player) game.scores.keySet().stream().filter(player -> player.getUUID().equals(UUID.fromString(temp2))).toArray()[0];
+			LOGGER.info("loaded currentplayer");
+			// turn score
+			in = reader.readLine();
+			parts = in.split(SEPARATOR);
+			assert parts[0].equals("TurnScore");
+			game.turnScore = Integer.parseInt(parts[1]);
+			LOGGER.info("loaded turnscore");
+			// is ended
+			in = reader.readLine();
+			parts = in.split(SEPARATOR);
+			assert parts[0].equals("isEnded");
+			game.isEnded = Boolean.parseBoolean(parts[1]);
+			LOGGER.info("loaded isended");
+			// history
 			in = reader.readLine();
 			assert in.equals(":Opts");
-			RollType lastType = RollType.Normal;
-			int lastValue = 0;
 			while (in != null && (in = reader.readLine()) != null) {
-				String[] parts = in.split(SEPARATOR);
-				assert game.numGamesThisMatch == Integer.parseInt(parts[1]);
-				assert game.getCurrentPlayer().getUUID().toString().equals(parts[2]);
+				parts = in.split(SEPARATOR);
+				LOGGER.info(Arrays.toString(parts));
+				final String temp3 = parts[2];
 				if (parts[0].equals("Roll")) {
-					lastType = RollType.valueOf(parts[3]);
-					lastValue = Integer.parseInt(parts[4]);
-					game.actRoll(lastType, lastValue);
+					game.stats.addRoll(Integer.parseInt(parts[1]), (Player) game.scores.keySet().stream().filter(player -> player.getUUID().equals(UUID.fromString(temp3))).toArray()[0], RollType.valueOf(parts[3]), Integer.parseInt(parts[4]));
 				}
 				else if (parts[0].equals("End")) {
-					game.actEnd(lastType,lastValue);
-					lastType = RollType.Normal;
-					lastValue = 0;
+					game.stats.addEnd(Integer.parseInt(parts[1]), (Player) game.scores.keySet().stream().filter(player -> player.getUUID().equals(UUID.fromString(temp3))).toArray()[0]);
 				}
 				else
 					throw new IOException("could not properly read file");
 			}
+			LOGGER.info("loaded history");
+			LOGGER.info("Game loaded successfully!");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -207,6 +280,8 @@ public class Game {
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			try {
 				reader.close();
@@ -215,7 +290,6 @@ public class Game {
 				e.printStackTrace();
 			}
 		}
-		LOGGER.info("Game loaded successfully!");
 		return game;
 	}
 }

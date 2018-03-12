@@ -1,5 +1,6 @@
 package main;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 /**
@@ -28,4 +29,6 @@ public abstract class Die implements Rollable {
 			throw new IllegalArgumentException("dice cannot roll negative values or have negative probability");
 		this.values = values;
 	}
+	
+	public String getValues() {return Arrays.toString(this.values);}
 }
