@@ -41,10 +41,9 @@ public class CommandLineClient extends Client {
 			System.out.println("Choose an option below.");
 			System.out.println("Options: [0: quit] [1: load] [2: start over] [3: add player] [4: remove player] [5: reset chips] [6: give/take chips] [7: start game]");
 			System.out.print("Choose option: ");
-			inInt = this.in.nextInt();
-			this.in.nextLine();
-			switch (inInt) {
-			case 0: //quit
+			inStr = this.in.nextLine();
+			switch (inStr) {
+			case "0": //quit
 				System.out.print("Are you sure? [y/n]: ");
 				inStr = this.in.nextLine();
 				if (inStr.length() != 1 || !(inStr.toLowerCase().charAt(0) == 'y' || inStr.toLowerCase().charAt(0) == 'n')) info = "Invalid confirmation.";
@@ -53,7 +52,7 @@ public class CommandLineClient extends Client {
 					else info = "Enter the names and number of starting chips of the players. At least two players are required to start a game, and there must be at least one chip in play.";
 				}
 				break;
-			case 1: //load
+			case "1": //load
 				File[] files = new File(DEFAULT_SAVE_LOCATION).listFiles();
 				System.out.println("Saved games:");
 				System.out.println(" 0: Enter file...");
@@ -61,8 +60,13 @@ public class CommandLineClient extends Client {
 					if (files[i].getName().substring(files[i].getName().lastIndexOf('.')+1, files[i].getName().length()).equals(SAVE_EXTENSION))
 						System.out.println(" " + (i+1) + ": " + DEFAULT_SAVE_LOCATION + files[i].getName());
 				System.out.print("Choose a saved file to load: ");
-				inInt = this.in.nextInt();
-				this.in.nextLine();
+				inStr = this.in.nextLine();
+				try {
+					inInt = Integer.parseInt(inStr);
+				} catch (Exception e) {
+					e.printStackTrace();
+					inInt = -1;
+				}
 				if (inInt == 0) {
 					System.out.print("Enter save file path and name: ");
 					inStr = this.in.nextLine();
@@ -91,7 +95,7 @@ public class CommandLineClient extends Client {
 					info = "Invalid save file selection. Please enter a valid selection.";
 				}
 				break;
-			case 2: //start over
+			case "2": //start over
 				System.out.print("Are you sure? [y/n]: ");
 				inStr = this.in.nextLine();
 				if (inStr.length() != 1 || !(inStr.toLowerCase().charAt(0) == 'y' || inStr.toLowerCase().charAt(0) == 'n')) info = "Invalid confirmation.";
@@ -100,7 +104,7 @@ public class CommandLineClient extends Client {
 					info = "Enter the names and number of starting chips of the players. At least two players are required to start a game, and there must be at least one chip in play.";
 				}
 				break;
-			case 3: //add player
+			case "3": //add player
 				System.out.print("Enter player's name: ");
 				inStr = this.in.nextLine();
 				if (inStr.length() == 0 || inStr.length() > NAME_LENGTH_LONG) info = "Invalid name length. Names must contain at least one character and at most " + NAME_LENGTH_LONG + " characters.";
@@ -109,10 +113,15 @@ public class CommandLineClient extends Client {
 					info = "Enter the names and number of starting chips of the players. At least two players are required to start a game, and there must be at least one chip in play.";
 				}
 				break;
-			case 4: //remove player
+			case "4": //remove player
 				System.out.print("Enter player number: ");
-				inInt = this.in.nextInt();
-				this.in.nextLine();
+				inStr = this.in.nextLine();
+				try {
+					inInt = Integer.parseInt(inStr);
+				} catch (Exception e) {
+					e.printStackTrace();
+					inInt = -1;
+				}
 				if (inInt < 0 || inInt > players.size()) info = "Not a valid player number. Please enter a valid player number.";
 				else {
 					System.out.print("Are you sure? [y/n]: ");
@@ -127,7 +136,7 @@ public class CommandLineClient extends Client {
 					}
 				}
 				break;
-			case 5: //reset chips
+			case "5": //reset chips
 				System.out.print("Are you sure? [y/n]: ");
 				inStr = this.in.nextLine();
 				if (inStr.length() != 1 || !(inStr.toLowerCase().charAt(0) == 'y' || inStr.toLowerCase().charAt(0) == 'n')) info = "Invalid confirmation.";
@@ -136,16 +145,26 @@ public class CommandLineClient extends Client {
 					else info = "Enter the names and number of starting chips of the players. At least two players are required to start a game, and there must be at least one chip in play.";
 				}
 				break;
-			case 6: //give/take chips
+			case "6": //give/take chips
 				System.out.print("Enter player number: ");
-				inInt = this.in.nextInt();
-				this.in.nextLine();
+				inStr = this.in.nextLine();
+				try {
+					inInt = Integer.parseInt(inStr);
+				} catch (Exception e) {
+					e.printStackTrace();
+					inInt = -1;
+				}
 				if (inInt < 0 || inInt > players.size()) info = "Not a valid player number. Please enter a valid player number.";
 				else {
 					int iplayer = inInt;
 					System.out.print("Enter number of chips (negative to remove chips): ");
-					inInt = this.in.nextInt();
-					this.in.nextLine();
+					inStr = this.in.nextLine();
+					try {
+						inInt = Integer.parseInt(inStr);
+					} catch (Exception e) {
+						e.printStackTrace();
+						inInt = -1;
+					}
 					if (iplayer == 0) {
 						for (Player player : players)
 							if (inInt > 0) player.giveChips(inInt);
@@ -158,7 +177,7 @@ public class CommandLineClient extends Client {
 					info = "Enter the names and number of starting chips of the players. At least two players are required to start a game, and there must be at least one chip in play.";
 				}
 				break;
-			case 7: //start game
+			case "7": //start game
 				if (players.size() < 2) info = "Not enough players to start game. At least two players are required.";
 				else if (players.stream().mapToInt(player -> player.getChips()).sum() == 0) info = "There must be at least one chip in play. Give the players some chips!";
 				else {
@@ -171,6 +190,18 @@ public class CommandLineClient extends Client {
 					}
 				}
 				break;
+			case "debug": //quick start game with defaults
+				players = new ArrayList<Player>();
+				players.add(new Player("Aaron",50));
+				players.add(new Player("Billy",50));
+				players.add(new Player("Chuck",50));
+				try {
+					this.game = new Game(players.toArray(new Player[players.size()]), new StandardDice());
+					done = true;
+				} catch (SecurityException | IOException e) {
+					e.printStackTrace();
+					info = "Something went wrong trying to start the game.";
+				}
 			default:
 				info = "Option invalid. Choose a valid option from the list below.";
 				break;
@@ -223,8 +254,13 @@ public class CommandLineClient extends Client {
 				if (files[i].getName().substring(files[i].getName().lastIndexOf('.')+1, files[i].getName().length()).equals(SAVE_EXTENSION))
 					System.out.println(" " + (i+1) + ": " + DEFAULT_SAVE_LOCATION + files[i].getName());
 			System.out.print("Choose a saved file to load: ");
-			inInt = this.in.nextInt();
-			this.in.nextLine();
+			inStr = this.in.nextLine();
+			try {
+				inInt = Integer.parseInt(inStr);
+			} catch (Exception e) {
+				e.printStackTrace();
+				inInt = -1;
+			}
 			if (inInt == 0) {
 				System.out.print("Enter save file path and name: ");
 				inStr = this.in.nextLine();
@@ -258,8 +294,13 @@ public class CommandLineClient extends Client {
 				if (files[i].getName().substring(files[i].getName().lastIndexOf('.')+1, files[i].getName().length()).equals(SAVE_EXTENSION))
 					System.out.println(" " + (i+1) + ": " + DEFAULT_SAVE_LOCATION + files[i].getName());
 			System.out.print("Choose a file to save to: ");
-			inInt = this.in.nextInt();
-			this.in.nextLine();
+			inStr = this.in.nextLine();
+			try {
+				inInt = Integer.parseInt(inStr);
+			} catch (Exception e) {
+				e.printStackTrace();
+				inInt = -1;
+			}
 			if (inInt == 0) {
 				System.out.print("Enter save file path and name: ");
 				inStr = this.in.nextLine();
