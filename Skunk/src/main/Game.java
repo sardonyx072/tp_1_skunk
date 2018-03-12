@@ -16,20 +16,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Game {
+	private static final String DEFAULT_LOG_LOCATION = "./log/", DEFAULT_LOG_NAME = "/log.log";
+	private static final String SEPARATOR = "::";
+	private static final int DEFAULT_TARGET = 100;
 	private static Logger LOGGER = null;
 	static {
 		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
 		LOGGER = Logger.getLogger(Game.class.getName());
 		try {
-			LOGGER.addHandler(new FileHandler("./log/log.txt"));
+			File file = new File(DEFAULT_LOG_LOCATION);
+			file.mkdir();
+			LOGGER.addHandler(new FileHandler(file.getAbsolutePath() + DEFAULT_LOG_NAME));
 		} catch (SecurityException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		LOGGER.setLevel(Level.ALL);
 	}
-	private static final String SEPARATOR = "::";
-	private static final int DEFAULT_TARGET = 100;
 	private Dice dice;
 	private CircularLinkedHashMap<Player,Integer> scores;
 	private boolean isEnded;
@@ -68,9 +71,6 @@ public class Game {
 		LOGGER.info(this.currentPlayer.getName() + " rolled a " + this.dice.getValues()[0] + "+" + this.dice.getValues()[1] + "=" + this.dice.getValue() + " (" + RollType.find(this.dice) + ")" + "!");
 		this.processRoll(RollType.find(this.dice), this.dice.getValue());
 	}
-	private void actRoll(RollType type, int value) {
-		this.processRoll(type,value);
-	}
 	private void processRoll(RollType type, int value) {
 		this.stats.addRoll(this.numGamesThisMatch,this.currentPlayer, type, value);
 		if (type.isTurnEnded()) {this.processEnd(type, value);}
@@ -79,9 +79,6 @@ public class Game {
 	public void actEnd() {
 		LOGGER.info(this.currentPlayer.getName() + " decided to end their turn having accumulated " + this.turnScore + " extra points, for a total of " + (this.scores.get(this.currentPlayer)+this.turnScore) + " points!");
 		this.processEnd(RollType.find(this.dice),this.dice.getValue());
-	}
-	private void actEnd(RollType type, int value) {
-		this.processEnd(type, value);
 	}
 	private void processEnd(RollType type, int value) {
 		this.stats.addEnd(this.getNumGames(), this.currentPlayer);
