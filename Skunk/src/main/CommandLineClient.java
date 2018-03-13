@@ -54,7 +54,10 @@ public class CommandLineClient extends Client {
 				this.getInput();
 			else
 				this.game.actBot();
+			this.quit = this.quit || (this.game!=null && this.game.isEnded());
 		}
+		if (this.game!=null && this.game.isEnded())
+			System.out.println(this.game.getCurrentPlayer().getName() + " is the Winner!");
 	}
 	public void update() {
 //		try {
@@ -96,6 +99,7 @@ public class CommandLineClient extends Client {
 		System.out.println(result.toString());
 	}
 	public void getInput() {
+		StringBuilder result = new StringBuilder();
 		String inStr = "";
 		int inInt = -1;
 		File[] files = new File(DEFAULT_SAVE_LOCATION).listFiles();
@@ -108,7 +112,6 @@ public class CommandLineClient extends Client {
 				if (this.promptGetConfirm("Are you sure? [y/n]: ")) this.quit = true;
 				break;
 			case "1": //load
-				StringBuilder result = new StringBuilder();
 				result.append("Saved game files:");
 				result.append("\n 0: Enter file...");
 				for (int i = 0; i < files.length; i++)
@@ -139,11 +142,26 @@ public class CommandLineClient extends Client {
 				else {this.info = DEFAULT_INFO;}
 				break;
 			case "3": //add player
-				inStr = this.promptGetString("Enter player name: ");
-				if (inStr.length() == 0 || inStr.length() > NAME_LENGTH_LONG) this.info = "Invalid name length. Names must contain 1-" + NAME_LENGTH_LONG + " characters.";
-				else {
-					this.players.add(new Player(inStr,0));
-					this.info = DEFAULT_INFO;
+				result.append("Player type:");
+				result.append("\n 0: Human player");
+				result.append("\n 1: Simple Bot");
+				result.append("\nEnter player type: ");
+				inInt = this.promptGetInt(result.toString());
+				switch (inInt) {
+				case 0:
+					inStr = this.promptGetString("Enter player name: ");
+					if (inStr.length() == 0 || inStr.length() > NAME_LENGTH_LONG) this.info = "Invalid name length. Names must contain 1-" + NAME_LENGTH_LONG + " characters.";
+					else {
+						this.players.add(new Player(inStr,0));
+						this.info = DEFAULT_INFO;
+					}
+					break;
+				case 1:
+					this.players.add(new SimpleBotPlayer(0,15));
+					break;
+				default:
+					this.info = "Invalid player type selection";
+					break;
 				}
 				break;
 			case "4": //remove player
@@ -235,7 +253,6 @@ public class CommandLineClient extends Client {
 				break;
 			case 1: //load
 				if (this.promptGetConfirm("Are you sure? All unsaved progress will be lost. [y/n]: ")) {
-					StringBuilder result = new StringBuilder();
 					result.append("Saved game files:");
 					result.append("\n 0: Enter file...");
 					for (int i = 0; i < files.length; i++)
@@ -261,7 +278,6 @@ public class CommandLineClient extends Client {
 				else {this.info = DEFAULT_INFO;}
 				break;
 			case 2: //save
-				StringBuilder result = new StringBuilder();
 				result.append("Saved games:");
 				result.append("\n 0: Enter file...");
 				for (int i = 0; i < files.length; i++)
