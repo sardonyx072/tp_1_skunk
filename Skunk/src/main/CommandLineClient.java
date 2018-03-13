@@ -5,8 +5,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class CommandLineClient extends Client {
+	private static Logger LOGGER = null;
+	static {
+		try {
+			LogManager.getLogManager().readConfiguration(CommandLineClient.class.getClassLoader().getResourceAsStream("main/resources/logging.properties"));
+			LOGGER = Logger.getLogger(CommandLineClient.class.getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	private static final int NAME_LENGTH_LONG = 32, NAME_LENGTH_SHORT = 8, GAME_LENGTH = 4;
 	private static final String DEFAULT_SAVE_LOCATION = "./sav/", SAVE_EXTENSION = ".sav";
 	private static final String DEFAULT_INFO = "Choose an option.";
@@ -58,15 +69,19 @@ public class CommandLineClient extends Client {
 		}
 		if (this.game!=null && this.game.isEnded())
 			System.out.println(this.game.getCurrentPlayer().getName() + " is the Winner!");
+		this.in.close();
 	}
 	public void update() {
 //		try {
 //			final String os = System.getProperty("os.name");
-//			Runtime.getRuntime().exec(os.contains("Windows") ? "cls" : "clear");
+//			//Runtime.getRuntime().exec(os.contains("Windows") ? "cls" : "clear");
+//			System.out.print("\033[H\033[2J");
+//			System.out.flush();
 //		} catch (final Exception e) {
 //			e.printStackTrace();
 //			this.info = this.info + " " + "Also, Could not clear the screen";
 //		}
+		LOGGER.finest("Updating the screen");
 		StringBuilder result = new StringBuilder();
 		if (!this.play) {
 			result.append("Players:");
@@ -94,7 +109,6 @@ public class CommandLineClient extends Client {
 				if (this.game.getCurrentPlayer() == player) result.append(String.format((player == this.game.getCurrentPlayer() ? "{%s}" : " %s "), String.format("[%-8s]", this.game.getScores().get(player)+this.game.getCurrentTurnScore())));
 				else if (this.game.getTargetPlayer() == player) result.append(String.format(" %s ", String.format("#%-" + NAME_LENGTH_SHORT + "s#", "TARGET").replace(' ', '#')));
 				else result.append(String.format(" %s ", String.format(" %-" + NAME_LENGTH_SHORT + "s ", "")));
-			result.append("\n");
 		}
 		System.out.println(result.toString());
 	}
@@ -193,7 +207,7 @@ public class CommandLineClient extends Client {
 							for (Player player : this.players)
 								player.giveChips(inInt);
 						else {this.players.get(iplayergive-1).giveChips(inInt);}
-					this.info = "Chips taken.";
+					this.info = "Chips given.";
 					}
 				}
 				break;

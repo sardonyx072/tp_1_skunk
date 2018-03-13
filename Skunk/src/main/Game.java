@@ -11,27 +11,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class Game {
-	private static final String DEFAULT_LOG_LOCATION = "./log/", DEFAULT_LOG_NAME = "/log.log";
 	private static final String SEPARATOR = "::";
 	private static final int DEFAULT_TARGET = 100;
 	private static Logger LOGGER = null;
 	static {
-		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
-		LOGGER = Logger.getLogger(Game.class.getName());
 		try {
-			File file = new File(DEFAULT_LOG_LOCATION);
-			file.mkdir();
-			LOGGER.addHandler(new FileHandler(file.getAbsolutePath() + DEFAULT_LOG_NAME));
-		} catch (SecurityException | IOException e) {
-			// TODO Auto-generated catch block
+			LogManager.getLogManager().readConfiguration(CommandLineClient.class.getClassLoader().getResourceAsStream("main/resources/logging.properties"));
+			LOGGER = Logger.getLogger(CommandLineClient.class.getName());
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		LOGGER.setLevel(Level.ALL);
 	}
 	private Dice dice;
 	private CircularLinkedHashMap<Player,Integer> scores;
