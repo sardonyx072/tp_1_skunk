@@ -66,6 +66,25 @@ public class Game {
 	public int getCurrentTurnScore() {return this.turnScore;}
 	public int getNumGames() {return this.numGamesThisMatch;}
 	public Stat getStats() {return this.stats;}
+	public boolean isCurrentPlayerBot() {
+		return this.currentPlayer instanceof BotPlayer;
+		
+	}
+	public void actBot() {
+		Player bot = this.currentPlayer;
+		while (this.currentPlayer == bot)
+			switch(((BotPlayer)this.currentPlayer).act(this)) {
+			case "Roll":
+				this.actRoll();
+				break;
+			case "End":
+				this.actEnd();
+				break;
+			default:
+				LOGGER.warning("Bot player returned unexpected action");
+				break;
+			}
+	}
 	public void actRoll() {
 		this.dice.roll();
 		LOGGER.info(this.currentPlayer.getName() + " rolled a " + this.dice.getValues()[0] + "+" + this.dice.getValues()[1] + "=" + this.dice.getValue() + " (" + RollType.find(this.dice) + ")" + "!");
@@ -116,7 +135,7 @@ public class Game {
 			writer = new BufferedWriter(new FileWriter(file));
 			writer.write(":Players");
 			for (Player player : game.scores.keySet())
-				writer.write("\n" + player.getUUID() + SEPARATOR + player.getName() + SEPARATOR + player.getChips() + SEPARATOR + game.scores.get(player));
+				writer.write("\n" + player.getUUID() + SEPARATOR + player.getName() + SEPARATOR + player.getChips() + SEPARATOR + game.scores.get(player) + (player instanceof BotPlayer ? SEPARATOR + player.getClass().getName() + SEPARATOR + ((BotPlayer)player).getThreshold() : ""));
 			LOGGER.info("Wrote all players to save file");
 			writer.write("\n");
 			writer.write(":Game");
@@ -175,7 +194,10 @@ public class Game {
 			assert in.equals(":Players");
 			while (in != null && (in = reader.readLine()) != null && !in.equals(":Game")) {
 				parts = in.split(SEPARATOR);
-				players.add(new Player(parts[1],UUID.fromString(parts[0]),Integer.parseInt(parts[2])));
+				if (parts.length == 4)
+					players.add(new Player(parts[1],UUID.fromString(parts[0]),Integer.parseInt(parts[2])));
+				else if (parts.length == 6)
+					players.add((Player) Class.forName(parts[4]).getConstructor(String.class,UUID.class,int.class,int.class).newInstance(new Object[] {parts[1],UUID.fromString(parts[0]),Integer.parseInt(parts[2]),Integer.parseInt(parts[5])}));
 				scores.add(Integer.parseInt(parts[3]));
 			}
 			LOGGER.info("loaded players");

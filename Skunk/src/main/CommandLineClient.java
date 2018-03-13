@@ -50,7 +50,10 @@ public class CommandLineClient extends Client {
 	public void run() {
 		while(!this.quit) {
 			this.update();
-			this.getInput();
+			if (this.game == null || !this.game.isCurrentPlayerBot())
+				this.getInput();
+			else
+				this.game.actBot();
 		}
 	}
 	public void update() {
@@ -209,6 +212,7 @@ public class CommandLineClient extends Client {
 				this.players.add(new Player("Aaron",50));
 				this.players.add(new Player("Billy",50));
 				this.players.add(new Player("Chuck",50));
+				this.players.add(new SimpleBotPlayer(50,10));
 				try {
 					this.game = new Game(this.players.toArray(new Player[this.players.size()]), dice);
 					this.info = "Game successfully started.";
@@ -270,7 +274,7 @@ public class CommandLineClient extends Client {
 					if (inInt == 0) {
 						inStr = this.promptGetString("Enter save file name: ");
 						if (inStr.lastIndexOf('/') <= 0) inStr = DEFAULT_SAVE_LOCATION + inStr;
-						if (inStr.lastIndexOf('.') < inStr.lastIndexOf('/')) inStr = inStr + "." + SAVE_EXTENSION;
+						if (inStr.lastIndexOf('.') < inStr.lastIndexOf('/')) inStr = inStr + SAVE_EXTENSION;
 						file = new File(inStr);
 					}
 					else {file = files[inInt-1];}
@@ -312,16 +316,28 @@ public class CommandLineClient extends Client {
 =====================================================
 BASIC
 =====================================================
-game 0001: [Aaron   ] [Billy   ] [Chuck   ]
-    chips: [12      ] [12      ] [12      ]
-    score: [12      ] [12      ] [16      ]
-     turn:            [34 (18) ]  #TARGET#
+game 0001: [Aaron   ] {[Billy   ]} [Chuck   ]
+    chips: [12      ] {[12      ]} [12      ]
+    score: [12      ] {[12      ]} [16      ]
+     turn:            {[34      ]} #TARGET###
+
+=====================================================
+BASIC-UPDATED
+=====================================================
+game 0001: [All     ]  [Aaron   ] {[Billy   ]} [Chuck   ]
+    chips: [        ]  [12      ] {[12      ]} [12      ] Kitty: 5
+    score: [        ]  [12      ] {[12      ]} [16      ] Target: 100
+     turn:                        {[34      ]} #TARGET###
 
 =====================================================
 DETAILED
 =====================================================
-           [All     ] [Aaron   ] [Billy   ] [Chuck   ]
-  overall: roll mean:
-       roll median:
-         roll mode:
+game 0001: [All     ]  [Aaron   ] {[Billy   ]} [Chuck   ]
+    chips: [        ]  [12      ] {[12      ]} [12      ] Kitty: 5
+    score: [        ]  [12      ] {[12      ]} [16      ] Target: 100
+     turn:                        {[34      ]} #TARGET###
+     mean:  7
+   median:  7
+     mode:  6
+    >=1SK:  33.33%
  */

@@ -1,5 +1,7 @@
 package main;
 
+import java.util.UUID;
+
 public abstract class BotPlayer extends Player {
 	private static final String[] NAMES = new String[]{
 			// scientists
@@ -15,7 +17,10 @@ public abstract class BotPlayer extends Player {
 	};
 	protected int riskThreshold;
 	public BotPlayer(int chips, int riskThreshold) {
-		super(NAMES[(int)(Math.random()*NAMES.length)] + " (AI)",chips);
+		this(NAMES[(int)(Math.random()*NAMES.length)] + " (AI)",UUID.randomUUID(),chips,riskThreshold);
+	}
+	public BotPlayer(String name, UUID uuid, int chips, int riskThreshold) {
+		super(name,uuid,chips);
 		this.riskThreshold = riskThreshold;
 	}
 	public abstract String act(Game game);
