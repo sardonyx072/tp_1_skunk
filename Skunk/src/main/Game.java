@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 public class Game {
 	private static final String SEPARATOR = "::";
@@ -81,9 +82,11 @@ public class Game {
 			}
 	}
 	public void actRoll() {
-		this.dice.roll();
-		LOGGER.info(this.currentPlayer.getName() + " rolled a " + this.dice.getValues()[0] + "+" + this.dice.getValues()[1] + "=" + this.dice.getValue() + " (" + RollType.find(this.dice) + ")" + "!");
-		this.processRoll(RollType.find(this.dice), this.dice.getValue());
+		int value = this.dice.roll();
+		RollType type = RollType.find(this.dice);
+		String message = this.currentPlayer.getName() + " rolled " + this.dice.toString() + " (" + type + ")" + "!";
+		LOGGER.info(message);
+		this.processRoll(type, value);
 	}
 	private void processRoll(RollType type, int value) {
 		this.stats.addRoll(this.numGamesThisMatch,this.currentPlayer, type, value);
@@ -137,7 +140,7 @@ public class Game {
 			writer.write("\n");
 			writer.write(":Game");
 			writer.write("\n");
-			writer.write("Dice" + SEPARATOR + game.dice.toString());
+			writer.write("Dice" + SEPARATOR + game.dice.flatten());
 			LOGGER.info("Wrote dice to save file");
 			writer.write("\n");
 			writer.write("GameNo" + SEPARATOR + game.numGamesThisMatch);

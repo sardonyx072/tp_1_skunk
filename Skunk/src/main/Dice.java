@@ -42,5 +42,7 @@ public class Dice implements Rollable {
 	 */
 	public int roll() {return Arrays.asList(this.dice).stream().mapToInt(die -> die.roll()).sum();}
 	
-	public String toString() {return this.getClass().getName() + Arrays.asList(this.dice).stream().map(die -> die.getValues()).reduce("", (die1, die2) -> die1 + " " + die2);}
+	public String flatten() {return this.getClass().getName() + Arrays.asList(this.dice).stream().map(die -> die.flatten()).reduce("", (die1, die2) -> die1 + " " + die2);}
+	
+	public String toString() {return Arrays.asList(this.dice).stream().map(die -> Integer.toString(die.getValue())).reduce("",(die1,die2)->die1+"+"+die2).substring(1)+"="+this.getValue();}
 }

@@ -16,9 +16,7 @@ public class CommandLineClient extends Client {
 			File logdir = new File(LogManager.getLogManager().getProperty("java.util.logging.FileHandler.pattern")).getParentFile();
 			if (logdir != null) logdir.mkdir();
 			LOGGER = Logger.getLogger(CommandLineClient.class.getName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) {e.printStackTrace();}
 	}
 	private static final int NAME_LENGTH_LONG = 32, NAME_LENGTH_SHORT = 8, GAME_LENGTH = 4;
 	private static final String DEFAULT_SAVE_LOCATION = "./sav/", SAVE_EXTENSION = ".sav";
@@ -43,6 +41,7 @@ public class CommandLineClient extends Client {
 		if (inStr != null && !inStr.equals("")) return inStr;
 		else {
 			this.info = "Invalid input";
+			LOGGER.warning("invalid input in string prompt, return empty string instead");
 			return "";
 		}
 	}
@@ -52,13 +51,17 @@ public class CommandLineClient extends Client {
 		} catch (Exception e) {
 			e.printStackTrace();
 			this.info = "Invalid input";
+			LOGGER.warning("invalid input in int prompt, returning -1 instead");
 			return -1;
 		}
 	}
 	private boolean promptGetConfirm(String prompt) {
 		String inStr = this.promptGetString(prompt);
 		if (inStr != null && !inStr.equals("") && inStr.length() == 1 && (inStr.equalsIgnoreCase("y") || inStr.equalsIgnoreCase("n"))) return inStr.equalsIgnoreCase("y");
-		else {return false;}
+		else {
+			LOGGER.warning("invalid input in confirmation prompt, returning false instead");
+			return false;
+		}
 	}
 	public void run() {
 		while(!this.quit) {
