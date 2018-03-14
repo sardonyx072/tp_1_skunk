@@ -176,9 +176,9 @@ public class Game {
 			LOGGER.fine("Wrote history to save file");
 			LOGGER.info("Successfully saved game to \"" + file + "\"!");
 		} catch (Exception e) {
-			LOGGER.warning(e.getMessage());
+			LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
 		} finally {
-			try {writer.close();} catch (IOException e) {LOGGER.severe(e.getMessage());}
+			try {writer.close();} catch (IOException e) {LOGGER.severe(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));}
 		}
 	}
 	public static Game load(String file) {
@@ -275,9 +275,9 @@ public class Game {
 			LOGGER.fine("loaded history");
 			LOGGER.info("Game loaded successfully!");
 		} catch (Exception e) {
-			LOGGER.warning(e.getMessage());
+			LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
 		} finally {
-			try {reader.close();} catch (IOException e) {LOGGER.severe(e.getMessage());}
+			try {reader.close();} catch (IOException e) {LOGGER.severe(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));}
 		}
 		return game;
 	}

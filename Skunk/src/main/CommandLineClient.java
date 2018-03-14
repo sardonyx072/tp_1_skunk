@@ -49,7 +49,7 @@ public class CommandLineClient extends Client {
 				return "";
 			}
 		} catch (Exception e) {
-			LOGGER.warning(e.getMessage());
+			LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
 			return "";
 		}
 	}
@@ -85,20 +85,22 @@ public class CommandLineClient extends Client {
 		try {
 			this.in.close();
 		} catch (Exception e) {
-			LOGGER.severe(e.getMessage());
+			LOGGER.severe(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
 		}
 	}
 	public void update() {
-//		try {
-//			final String os = System.getProperty("os.name");
-//			//Runtime.getRuntime().exec(os.contains("Windows") ? "cls" : "clear");
-//			System.out.print("\033[H\033[2J");
-//			System.out.flush();
-//		} catch (final Exception e) {
-//			e.printStackTrace();
-//			this.info = this.info + " " + "Also, Could not clear the screen";
-//		}
 		LOGGER.entering(this.getClass().getName(), "update");
+		//clear screen
+		try {
+			final String os = System.getProperty("os.name");
+			Runtime.getRuntime().exec(os.contains("Windows") ? "cls" : "clear");
+			//System.out.print("\033[H\033[2J");
+			//System.out.flush();
+		} catch (final Exception e) {
+			LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
+			this.info = this.info + " " + "Also, Could not clear the screen";
+		}
+		//print to console
 		StringBuilder result = new StringBuilder();
 		if (!this.play) {
 			result.append("Players:");
@@ -170,7 +172,7 @@ public class CommandLineClient extends Client {
 							this.game = Game.load(file.getAbsolutePath());
 							this.play = true;
 						} catch (Exception e) {
-							LOGGER.warning(e.getMessage());
+							LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
 							this.info = "Something went wrong loading the file.";
 						}
 					}
@@ -284,7 +286,7 @@ public class CommandLineClient extends Client {
 						this.info = "Game successfully started.";
 						this.play = true;
 					} catch (SecurityException | IOException e) {
-						LOGGER.warning(e.getMessage());
+						LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
 						this.info = "Something went wrong trying to start the game.";
 					}
 				}
@@ -302,10 +304,28 @@ public class CommandLineClient extends Client {
 					this.info = "Game successfully started.";
 					this.play = true;
 				} catch (SecurityException | IOException e) {
-					LOGGER.warning(e.getMessage());
+					LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
 					this.info = "Something went wrong trying to start the game.";
 				}
 				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [debug]");
+				break;
+			case "bots": //quick start game with all bots
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": bots]");
+				this.players = new ArrayList<Player>();
+				this.players.add(new SimpleBotPlayer(50,10));
+				this.players.add(new SimpleBotPlayer(50,10));
+				this.players.add(new SimpleBotPlayer(50,10));
+				this.players.add(new SimpleBotPlayer(50,10));
+				this.players.add(new SimpleBotPlayer(50,10));
+				try {
+					this.game = new Game(this.players.toArray(new Player[this.players.size()]), dice);
+					this.info = "Game successfully started.";
+					this.play = true;
+				} catch (SecurityException | IOException e) {
+					LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
+					this.info = "Something went wrong trying to start the game.";
+				}
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [bots]");
 				break;
 			default:
 				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [default]");
@@ -343,7 +363,7 @@ public class CommandLineClient extends Client {
 								this.game = Game.load(file.getAbsolutePath());
 								this.play = true;
 							} catch (Exception e) {
-								LOGGER.warning(e.getMessage());
+								LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
 								this.info = "Something went wrong loading the file.";
 							}
 						}
@@ -377,7 +397,7 @@ public class CommandLineClient extends Client {
 							Game.save(this.game, file.getAbsolutePath());
 							this.info  = "Game saved to " + file.getAbsolutePath();
 						} catch (Exception e) {
-							LOGGER.warning(e.getMessage());
+							LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
 							this.info = "Something went wrong saving the file.";
 						}
 					}
