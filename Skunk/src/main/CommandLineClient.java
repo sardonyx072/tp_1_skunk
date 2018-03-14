@@ -3,6 +3,7 @@ package main;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.LogManager;
@@ -36,16 +37,24 @@ public class CommandLineClient extends Client {
 		this.players = new ArrayList<Player>();
 	}
 	private String promptGetString(String prompt) {
+		LOGGER.finest("Prompt to get string");
 		System.out.print(prompt);
-		String inStr = this.in.nextLine();
-		if (inStr != null && !inStr.equals("")) return inStr;
-		else {
-			this.info = "Invalid input";
-			LOGGER.warning("invalid input in string prompt, return empty string instead");
+		try {
+			String inStr = this.in.nextLine();
+			LOGGER.finest("Raw input: " + inStr);
+			if (inStr != null && !inStr.equals("")) return inStr;
+			else {
+				this.info = "Invalid input";
+				LOGGER.warning("invalid input in string prompt, return empty string instead");
+				return "";
+			}
+		} catch (Exception e) {
+			LOGGER.warning(e.getMessage());
 			return "";
 		}
 	}
 	private int promptGetInt(String prompt) {
+		LOGGER.finest("Prompt to get int");
 		try {
 			return Integer.parseInt(this.promptGetString(prompt));
 		} catch (Exception e) {
@@ -56,7 +65,9 @@ public class CommandLineClient extends Client {
 		}
 	}
 	private boolean promptGetConfirm(String prompt) {
+		LOGGER.finest("Prompt to get confirmation (y/n)");
 		String inStr = this.promptGetString(prompt);
+		LOGGER.finest("Raw input: " + inStr);
 		if (inStr != null && !inStr.equals("") && inStr.length() == 1 && (inStr.equalsIgnoreCase("y") || inStr.equalsIgnoreCase("n"))) return inStr.equalsIgnoreCase("y");
 		else {
 			LOGGER.warning("invalid input in confirmation prompt, returning false instead");
@@ -71,7 +82,11 @@ public class CommandLineClient extends Client {
 		}
 		if (this.game!=null && this.game.isEnded())
 			System.out.println(this.game.getCurrentPlayer().getName() + " is the Winner!");
-		this.in.close();
+		try {
+			this.in.close();
+		} catch (Exception e) {
+			LOGGER.severe(e.getMessage());
+		}
 	}
 	public void update() {
 //		try {
@@ -83,7 +98,7 @@ public class CommandLineClient extends Client {
 //			e.printStackTrace();
 //			this.info = this.info + " " + "Also, Could not clear the screen";
 //		}
-		LOGGER.finest("Updating the screen");
+		LOGGER.entering(this.getClass().getName(), "update");
 		StringBuilder result = new StringBuilder();
 		if (!this.play) {
 			result.append("Players:");
@@ -117,22 +132,30 @@ public class CommandLineClient extends Client {
 			this.quit = true;
 		}
 		System.out.println(result.toString());
+		LOGGER.exiting(this.getClass().getName(), "update");
 	}
 	public void getInput() {
+		LOGGER.entering(this.getClass().getName(), "getInput");
 		StringBuilder result = new StringBuilder();
 		String inStr = "";
 		int inInt = -1;
 		File[] files = new File(DEFAULT_SAVE_LOCATION).listFiles();
 		if (files==null) files = new File[] {};
+		LOGGER.finer("List of files found in save location: " + Arrays.toString(files));
 		System.out.println("INFO: " + this.info);
 		if (!this.play) {
+			LOGGER.entering(this.getClass().getName(), "getInput-preplay");
 			System.out.println("Options: [0: quit] [1: load] [2: start over] [3: add player] [4: remove player] [5: reset chips] [6: give chips] [7: take chips] [8: start game]");
 			inStr = this.promptGetString("Choose Option: ");
+			LOGGER.info("Input selection: " + inStr);
 			switch (inStr) {
 			case "0": //quit
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": quit]");
 				if (this.promptGetConfirm("Are you sure? [y/n]: ")) this.quit = true;
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [quit]");
 				break;
 			case "1": //load
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": load]");
 				result.append("Saved game files:");
 				result.append("\n 0: Enter file...");
 				for (int i = 0; i < files.length; i++)
@@ -147,45 +170,54 @@ public class CommandLineClient extends Client {
 							this.game = Game.load(file.getAbsolutePath());
 							this.play = true;
 						} catch (Exception e) {
-							e.printStackTrace();
+							LOGGER.warning(e.getMessage());
 							this.info = "Something went wrong loading the file.";
 						}
 					}
 					else {this.info = "Invalid file entered. Please enter a valid file.";}
 				}
 				else {this.info = "Invalid save file selection. Please enter a valid selection.";}
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [load]");
 				break;
 			case "2": //start over
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": start over]");
 				if (this.promptGetConfirm("Are you sure? [y/n]: ")) {
 					this.players = new ArrayList<Player>();
 					this.info = "All player info cleared.";
 				}
 				else {this.info = DEFAULT_INFO;}
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [start over]");
 				break;
 			case "3": //add player
-				result.append("Player type:");
-				result.append("\n 0: Human player");
-				result.append("\n 1: Simple Bot");
-				result.append("\nEnter player type: ");
-				inInt = this.promptGetInt(result.toString());
-				switch (inInt) {
-				case 0:
-					inStr = this.promptGetString("Enter player name: ");
-					if (inStr.length() == 0 || inStr.length() > NAME_LENGTH_LONG) this.info = "Invalid name length. Names must contain 1-" + NAME_LENGTH_LONG + " characters.";
-					else {
-						this.players.add(new Player(inStr,0));
-						this.info = DEFAULT_INFO;
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": add player]");
+				if (this.players.size() < Game.getMaxPlayers()) {
+					result.append("Player type:");
+					result.append("\n 0: Human player");
+					result.append("\n 1: Simple Bot");
+					result.append("\nEnter player type: ");
+					inInt = this.promptGetInt(result.toString());
+					switch (inInt) {
+					case 0:
+						inStr = this.promptGetString("Enter player name: ");
+						if (inStr.length() == 0 || inStr.length() > NAME_LENGTH_LONG) this.info = "Invalid name length. Names must contain 1-" + NAME_LENGTH_LONG + " characters.";
+						else {
+							this.players.add(new Player(inStr,0));
+							this.info = DEFAULT_INFO;
+						}
+						break;
+					case 1:
+						this.players.add(new SimpleBotPlayer(0,15));
+						break;
+					default:
+						this.info = "Invalid player type selection";
+						break;
 					}
-					break;
-				case 1:
-					this.players.add(new SimpleBotPlayer(0,15));
-					break;
-				default:
-					this.info = "Invalid player type selection";
-					break;
 				}
+				else {this.info = "Too many players.";}
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [add player]");
 				break;
 			case "4": //remove player
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": remove player]");
 				inInt = this.promptGetInt("Enter player number: ");
 				if (inInt < 0 || inInt > this.players.size()) this.info = "Not a valid player number. Please enter a valid player number.";
 				else {
@@ -196,20 +228,27 @@ public class CommandLineClient extends Client {
 					}
 					else {this.info = DEFAULT_INFO;}
 				}
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [remove player]");
 				break;
 			case "5": //reset chips
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": reset chips]");
 				if (this.promptGetConfirm("Are you sure? [y/n]: ")) {
 					this.players.stream().forEach(player -> player.takeChips(player.getChips()));
 					this.info = "Chips reset.";
 				}
 				else {this.info = DEFAULT_INFO;}
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [reset chips]");
 				break;
 			case "6": //give chips
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": give chips]");
 				int iplayergive = this.promptGetInt("Enter player number: ");
 				if (iplayergive < 0 || iplayergive > this.players.size()) this.info = "Not a valid player number. Please enter a valid player number.";
 				else {
 					inInt = this.promptGetInt("Enter number of chips to give: ");
-					if (inInt > 0) {
+					if (inInt > Game.getMaxStartingChips() || (iplayergive != 0 && this.players.get(iplayergive).getChips()+inInt > Game.getMaxStartingChips())) {
+						this.info = "Cannot set starting chips this high.";
+					}
+					else if (inInt > 0) {
 						if (iplayergive == 0)
 							for (Player player : this.players)
 								player.giveChips(inInt);
@@ -217,8 +256,10 @@ public class CommandLineClient extends Client {
 					this.info = "Chips given.";
 					}
 				}
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [give chips]");
 				break;
 			case "7": //take chips
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": take chips]");
 				int iplayertake = this.promptGetInt("Enter player number: ");
 				if (iplayertake < 0 || iplayertake > this.players.size()) this.info = "Not a valid player number. Please enter a valid player number.";
 				else {
@@ -231,8 +272,10 @@ public class CommandLineClient extends Client {
 						this.info = "Chips taken.";
 					}
 				}
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [take chips]");
 				break;
 			case "8": //start game
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": start game]");
 				if (players.size() < 2) this.info = "Not enough players to start game. At least two players are required.";
 				else if (players.stream().mapToInt(player -> player.getChips()).sum() == 0) this.info = "There must be at least one chip in play. Give the players some chips!";
 				else {
@@ -241,12 +284,14 @@ public class CommandLineClient extends Client {
 						this.info = "Game successfully started.";
 						this.play = true;
 					} catch (SecurityException | IOException e) {
-						e.printStackTrace();
+						LOGGER.warning(e.getMessage());
 						this.info = "Something went wrong trying to start the game.";
 					}
 				}
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [start game]");
 				break;
 			case "debug": //quick start game with defaults
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [" + inStr + ": debug]");
 				this.players = new ArrayList<Player>();
 				this.players.add(new Player("Aaron",50));
 				this.players.add(new Player("Billy",50));
@@ -257,22 +302,32 @@ public class CommandLineClient extends Client {
 					this.info = "Game successfully started.";
 					this.play = true;
 				} catch (SecurityException | IOException e) {
-					e.printStackTrace();
+					LOGGER.warning(e.getMessage());
 					this.info = "Something went wrong trying to start the game.";
 				}
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [debug]");
+				break;
 			default:
+				LOGGER.entering(this.getClass().getName(), "getInput-preplay: [default]");
 				this.info = "Invalid option.";
+				LOGGER.exiting(this.getClass().getName(), "getInput-preplay: [default]");
 				break;
 			}
+			LOGGER.exiting(this.getClass().getName(), "getInput-preplay");
 		}
 		else {
+			LOGGER.entering(this.getClass().getName(), "getInput-inplay");
 			System.out.println("Options: [0: quit] [1: load] [2: save] [3: roll] [4: end turn]");
 			inInt = this.promptGetInt("Choose option: ");
+			LOGGER.info("Input selection: " + inInt);
 			switch (inInt) {
 			case 0: //quit
+				LOGGER.entering(this.getClass().getName(), "getInput-inplay: [" + inInt + ": quit]");
 				if (this.promptGetConfirm("Are you sure? [y/n]: ")) this.quit = true;
+				LOGGER.exiting(this.getClass().getName(), "getInput-inplay: [quit]");
 				break;
 			case 1: //load
+				LOGGER.entering(this.getClass().getName(), "getInput-inplay: [" + inInt + ": load]");
 				if (this.promptGetConfirm("Are you sure? All unsaved progress will be lost. [y/n]: ")) {
 					result.append("Saved game files:");
 					result.append("\n 0: Enter file...");
@@ -288,7 +343,7 @@ public class CommandLineClient extends Client {
 								this.game = Game.load(file.getAbsolutePath());
 								this.play = true;
 							} catch (Exception e) {
-								e.printStackTrace();
+								LOGGER.warning(e.getMessage());
 								this.info = "Something went wrong loading the file.";
 							}
 						}
@@ -297,8 +352,10 @@ public class CommandLineClient extends Client {
 					else {this.info = "Invalid save file selection. Please enter a valid selection.";}
 				}
 				else {this.info = DEFAULT_INFO;}
+				LOGGER.exiting(this.getClass().getName(), "getInput-inplay: [load]");
 				break;
 			case 2: //save
+				LOGGER.entering(this.getClass().getName(), "getInput-inplay: [" + inInt + ": save]");
 				result.append("Saved games:");
 				result.append("\n 0: Enter file...");
 				for (int i = 0; i < files.length; i++)
@@ -320,23 +377,33 @@ public class CommandLineClient extends Client {
 							Game.save(this.game, file.getAbsolutePath());
 							this.info  = "Game saved to " + file.getAbsolutePath();
 						} catch (Exception e) {
+							LOGGER.warning(e.getMessage());
 							this.info = "Something went wrong saving the file.";
 						}
 					}
 				}
 				else {this.info = "Invalid save file selection. Please enter a valid selection.";}
+				LOGGER.exiting(this.getClass().getName(), "getInput-inplay: [: save]");
 				break;
 			case 3: //roll
+				LOGGER.entering(this.getClass().getName(), "getInput-inplay: [" + inInt + ": roll]");
 				this.actRoll();
+				LOGGER.exiting(this.getClass().getName(), "getInput-inplay: [: roll]");
 				break;
 			case 4: //end turn
+				LOGGER.entering(this.getClass().getName(), "getInput-inplay: [" + inInt + ": end]");
 				this.actEnd();
+				LOGGER.exiting(this.getClass().getName(), "getInput-inplay: [: end]");
 				break;
 			default:
+				LOGGER.entering(this.getClass().getName(), "getInput-inplay: [default]");
 				this.info = "Option invalid. Choose a valid option from the list below.";
+				LOGGER.exiting(this.getClass().getName(), "getInput-inplay: [default]");
 				break;
 			}
+			LOGGER.exiting(this.getClass().getName(), "getInput-inplay");
 		}
+		LOGGER.exiting(this.getClass().getName(), "getInput");
 	}
 	public static void main(String[] args) {
 		CommandLineClient client = new CommandLineClient();
