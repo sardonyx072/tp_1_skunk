@@ -13,6 +13,8 @@ public class CommandLineClient extends Client {
 	static {
 		try {
 			LogManager.getLogManager().readConfiguration(CommandLineClient.class.getClassLoader().getResourceAsStream("main/resources/logging.properties"));
+			File logdir = new File(LogManager.getLogManager().getProperty("java.util.logging.FileHandler.pattern")).getParentFile();
+			if (logdir != null) logdir.mkdir();
 			LOGGER = Logger.getLogger(CommandLineClient.class.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -117,6 +119,7 @@ public class CommandLineClient extends Client {
 		String inStr = "";
 		int inInt = -1;
 		File[] files = new File(DEFAULT_SAVE_LOCATION).listFiles();
+		if (files==null) files = new File[] {};
 		System.out.println("INFO: " + this.info);
 		if (!this.play) {
 			System.out.println("Options: [0: quit] [1: load] [2: start over] [3: add player] [4: remove player] [5: reset chips] [6: give chips] [7: take chips] [8: start game]");

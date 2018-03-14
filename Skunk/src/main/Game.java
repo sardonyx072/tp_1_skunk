@@ -21,6 +21,8 @@ public class Game {
 	static {
 		try {
 			LogManager.getLogManager().readConfiguration(CommandLineClient.class.getClassLoader().getResourceAsStream("main/resources/logging.properties"));
+			File logdir = new File(LogManager.getLogManager().getProperty("java.util.logging.FileHandler.pattern")).getParentFile();
+			if (logdir != null) logdir.mkdir();
 			LOGGER = Logger.getLogger(CommandLineClient.class.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -125,6 +127,8 @@ public class Game {
 	public static void save(Game game, String file) {
 		BufferedWriter writer = null;
 		try {
+			File savedir = new File(file).getParentFile();
+			if (savedir != null) savedir.mkdir();
 			writer = new BufferedWriter(new FileWriter(file));
 			writer.write(":Players");
 			for (Player player : game.scores.keySet())
