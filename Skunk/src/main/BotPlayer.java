@@ -19,7 +19,7 @@ public abstract class BotPlayer extends Player {
 			// Marvel/DC
 			"Charles Xavier","Bruce Banner","Tony Stark","JARVIS","Loki","Ultron",
 			// star trek
-			"Data","Lore","Locutus","Q",
+			"Data","Lore","Locutus","Q"
 	};
 	protected int riskThreshold;
 	public BotPlayer(int chips, int riskThreshold) {

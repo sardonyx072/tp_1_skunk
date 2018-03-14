@@ -66,11 +66,8 @@ public class CommandLineClient extends Client {
 	public void run() {
 		while(!this.quit) {
 			this.update();
-			if (this.game == null || !this.game.isCurrentPlayerBot())
+			if (!this.quit)
 				this.getInput();
-			else
-				this.game.actBot();
-			this.quit = this.quit || (this.game!=null && this.game.isEnded());
 		}
 		if (this.game!=null && this.game.isEnded())
 			System.out.println(this.game.getCurrentPlayer().getName() + " is the Winner!");
@@ -96,7 +93,8 @@ public class CommandLineClient extends Client {
 				for (int i = 0; i < this.players.size(); i++) result.append("\n " + (i+1) + ": " + String.format("%-" + NAME_LENGTH_LONG +"s",this.players.get(i).getName()) + " " + this.players.get(i).getChips());
 			}
 		}
-		else {
+		else if (!this.game.isEnded()) {
+			this.quit = this.game.setUpTurn();
 			result.append("game " + String.format("%" + GAME_LENGTH + "s", this.game.getNumGames()) + ": ");
 			for (Player player : this.game.getScores().keySet())
 				result.append(String.format((player == this.game.getCurrentPlayer() ? "{%s}" : " %s "), String.format("[%-" + NAME_LENGTH_SHORT + "s]", player.getName().substring(0, Math.min(NAME_LENGTH_SHORT, player.getName().length())))));
@@ -114,6 +112,9 @@ public class CommandLineClient extends Client {
 				if (this.game.getCurrentPlayer() == player) result.append(String.format((player == this.game.getCurrentPlayer() ? "{%s}" : " %s "), String.format("[%-8s]", this.game.getScores().get(player)+this.game.getCurrentTurnScore())));
 				else if (this.game.getTargetPlayer() == player) result.append(String.format(" %s ", String.format("#%-" + NAME_LENGTH_SHORT + "s#", "TARGET").replace(' ', '#')));
 				else result.append(String.format(" %s ", String.format(" %-" + NAME_LENGTH_SHORT + "s ", "")));
+		}
+		else {
+			this.quit = true;
 		}
 		System.out.println(result.toString());
 	}

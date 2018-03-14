@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-import java.util.stream.IntStream;
 
 public class Game {
 	private static final String SEPARATOR = "::";
@@ -62,13 +61,8 @@ public class Game {
 	public int getCurrentTurnScore() {return this.turnScore;}
 	public int getNumGames() {return this.numGamesThisMatch;}
 	public Stat getStats() {return this.stats;}
-	public boolean isCurrentPlayerBot() {
-		return this.currentPlayer instanceof BotPlayer;
-		
-	}
-	public void actBot() {
-		Player bot = this.currentPlayer;
-		while (this.currentPlayer == bot)
+	public boolean setUpTurn() {
+		while (!this.isEnded && this.currentPlayer instanceof BotPlayer) {
 			switch(((BotPlayer)this.currentPlayer).act(this)) {
 			case "Roll":
 				this.actRoll();
@@ -80,6 +74,8 @@ public class Game {
 				LOGGER.warning("Bot player returned unexpected action");
 				break;
 			}
+		}
+		return this.isEnded;
 	}
 	public void actRoll() {
 		int value = this.dice.roll();
