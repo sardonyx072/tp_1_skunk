@@ -29,6 +29,8 @@ public class CommandLineClient extends Client {
 	private String info;
 	private List<Player> players;
 	
+	//TODO play can be replaced with this.game==null
+	
 	public CommandLineClient() {
 		this.in = new Scanner(System.in);
 		this.play = false;
@@ -76,12 +78,27 @@ public class CommandLineClient extends Client {
 	}
 	public void run() {
 		while(!this.quit) {
-			this.update();
-			if (!this.quit)
-				this.getInput();
+			while(!this.quit) {
+				this.update();
+				if (!this.quit)
+					this.getInput();
+			}
+			if (this.game!=null && this.game.isEnded()) {
+				System.out.println(this.game.getCurrentPlayer().getName() + " is the Winner!");
+				if (this.promptGetConfirm("Play again? [y/n]: ")) {
+					this.quit = false;
+					this.play = false;
+					this.game = null;
+				}
+			}
+			else if(this.game!=null && !this.game.isEnded()) {
+				if (this.promptGetConfirm("Play a game? [y/n]: ")) {
+					this.quit = false;
+					this.play = false;
+					this.game = null;
+				}
+			}
 		}
-		if (this.game!=null && this.game.isEnded())
-			System.out.println(this.game.getCurrentPlayer().getName() + " is the Winner!");
 		try {
 			this.in.close();
 		} catch (Exception e) {
@@ -92,6 +109,7 @@ public class CommandLineClient extends Client {
 		LOGGER.entering(this.getClass().getName(), "update");
 		//clear screen
 		try {
+			System.out.println("================================================================================================================================================");
 			final String os = System.getProperty("os.name");
 			Runtime.getRuntime().exec(os.contains("Windows") ? "cls" : "clear");
 			//System.out.print("\033[H\033[2J");

@@ -11,7 +11,7 @@ public abstract class BotPlayer extends Player {
 			"Tim Berners-Lee","Robert Hooke","Edwin Hubble","Mary Anning","William Thomson","Alfred Nobel","James Prescott Joule","Blaise Pascal","Enrico Fermi","Linus Pauling","John Dalton","Dmitri Mendeleev",
 			"Antoine van Leeuwenhoek","Erwin Schroedinger","Paul Dirac","J.J. Thomson","Ernest Walton","Franz Mesmer","Phillipe Pinel","Rudolph Virchow","Irene Joliot-Curie",
 			// philosophers
-			"Sophocles","Aristotle","",
+			"Sophocles","Aristotle","Hippocrates",
 			// computer scientists
 			"Linus Torvalds",
 			// DnD 
