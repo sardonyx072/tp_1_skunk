@@ -27,7 +27,7 @@ public class Game {
 	}
 	private Dice dice;
 	private CircularLinkedHashMap<Player,Integer> scores;
-	private boolean isEnded;
+	private boolean isActive;
 	private int kitty;
 	private int target;
 	private Player targetPlayer;
@@ -36,23 +36,49 @@ public class Game {
 	private int numGamesThisMatch;
 	private Stat stats;
 	
-	public Game(Player[] players, Dice dice) throws SecurityException, IOException {
+	public Game(Player[] players, Dice dice) {
 		this.scores = new CircularLinkedHashMap<Player,Integer>();
-		Arrays.asList(players).stream().forEach(player -> this.scores.put(player, 0));
+		Arrays.asList(players).stream().forEach(player -> this.addPlayer(player, 0));
+		this.currentPlayer = players.length > 0 ? players[0] : null;
+		this.targetPlayer = null;
 		this.dice = dice;
 		this.kitty = 0;
-		this.isEnded = false;
+		this.isActive = false;
 		this.target = DEFAULT_TARGET;
-		this.targetPlayer = null;
-		this.currentPlayer = new ArrayList<Player>(this.scores.keySet()).get(0);
 		this.turnScore = 0;
 		this.numGamesThisMatch = 0;
 		this.stats = new Stat();
 	}
 	public static int getMaxPlayers() {return MAX_PLAYERS;}
 	public static int getMaxStartingChips() {return MAX_STARTING_CHIPS_PER_PLAYER;}
+	public Player[] getPlayers() {return this.scores.keySet().toArray(new Player[this.scores.keySet().size()]);}
+	public void addPlayer(Player player) {
+		this.addPlayer(player, 0);
+	}
+	public void addPlayer(Player player, int score) {
+		if (player != null) {
+			this.scores.put(player, 0);
+			if (this.currentPlayer == null)
+				this.currentPlayer = player;
+		}
+	}
+	public void removePlayer(int i) {
+		if (0 <= i && i < this.scores.size()) {
+			Player removed = this.getPlayers()[i];
+			if (this.currentPlayer == removed) {
+				this.currentPlayer = this.getPlayers().length > 1 ? this.scores.getKeyAfter(removed) : null;
+				this.turnScore = 0;
+			}
+			if (this.targetPlayer == removed) {
+				this.targetPlayer = null;
+				this.target = DEFAULT_TARGET;
+			}
+			this.scores.remove(removed);
+		}
+	}
 	public CircularLinkedHashMap<Player,Integer> getScores() {return this.scores;}
-	public boolean isEnded() {return this.isEnded;}
+	public boolean isActive() {return this.isActive;}
+	public boolean setActive(boolean active) {return this.isActive = active;}
 	public int getKitty() {return this.kitty;}
 	public int getTarget() {return this.target;}
 	public Player getTargetPlayer() {return this.targetPlayer;}
@@ -61,13 +87,13 @@ public class Game {
 	public int getNumGames() {return this.numGamesThisMatch;}
 	public Stat getStats() {return this.stats;}
 	public boolean setUpTurn() {
-		while (!this.isEnded && this.currentPlayer instanceof BotPlayer) {
+		while (this.isActive && this.currentPlayer instanceof BotPlayer) {
 			String action = ((BotPlayer)this.currentPlayer).act(this);
 			if (action.equalsIgnoreCase("Roll")) this.actRoll();
 			else if (action.equalsIgnoreCase("End")) this.actEnd();
 			else LOGGER.warning("Bot player returned unexpected action. Doing nothing instead.");
 		}
-		return this.isEnded;
+		return this.isActive;
 	}
 	public void actRoll() {
 		int value = this.dice.roll();
@@ -140,15 +166,16 @@ public class Game {
 			if (this.scores.keySet().stream().filter(player -> player.getChips() > 0).count() == 1) {
 				LOGGER.info(this.currentPlayer.getName() + " won the match, having accumulated all " + this.currentPlayer.getChips() + " chips!");
 				LOGGER.info("The match lasted " + this.numGamesThisMatch + " games!");
-				this.isEnded = true;
+				this.isActive = false;
 			}
 		}
 	}
-	public static void save(Game game, String file) {
+	public static boolean save(Game game, File file) {
+		boolean success = true;
 		BufferedWriter writer = null;
 		try {
 			LOGGER.info("Attempting to save game to \"" + file + "\"...");
-			File savedir = new File(file).getParentFile();
+			File savedir = file.getParentFile();
 			if (savedir != null) savedir.mkdir();
 			writer = new BufferedWriter(new FileWriter(file));
 			writer.write(":Players");
@@ -170,18 +197,20 @@ public class Game {
 			LOGGER.fine("Wrote current player to save file");
 			writer.write("\nTurnScore" + SEPARATOR + game.turnScore);
 			LOGGER.fine("Wrote turn score to save file");
-			writer.write("\nisEnded" + SEPARATOR + game.isEnded);
+			writer.write("\nisActive" + SEPARATOR + game.isActive);
 			LOGGER.fine("Wrote is ended to save file");
 			writer.write("\n"+game.stats.printHistory(SEPARATOR));
 			LOGGER.fine("Wrote history to save file");
 			LOGGER.info("Successfully saved game to \"" + file + "\"!");
 		} catch (Exception e) {
 			LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
+			success = false;
 		} finally {
 			try {writer.close();} catch (IOException e) {LOGGER.severe(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));}
 		}
+		return success;
 	}
-	public static Game load(String file) {
+	public static Game load(File file) {
 		Game game = null;
 		BufferedReader reader = null;
 		try {
@@ -190,7 +219,7 @@ public class Game {
 			Dice dice = null;
 			String[] parts;
 			LOGGER.info("Attempting to load game from file \"" + file + "\"...");
-			reader = new BufferedReader(new FileReader(new File(file)));
+			reader = new BufferedReader(new FileReader(file));
 			// players
 			String in = reader.readLine();
 			assert in.equals(":Players");
@@ -253,9 +282,9 @@ public class Game {
 			// is ended
 			in = reader.readLine();
 			parts = in.split(SEPARATOR);
-			assert parts[0].equals("isEnded");
-			game.isEnded = Boolean.parseBoolean(parts[1]);
-			LOGGER.fine("loaded isended");
+			assert parts[0].equals("isActive");
+			game.isActive = Boolean.parseBoolean(parts[1]);
+			LOGGER.fine("loaded isactive");
 			// history
 			in = reader.readLine();
 			assert in.equals(":Opts");
@@ -276,6 +305,7 @@ public class Game {
 			LOGGER.info("Game loaded successfully!");
 		} catch (Exception e) {
 			LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
+			game = null;
 		} finally {
 			try {reader.close();} catch (IOException e) {LOGGER.severe(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));}
 		}

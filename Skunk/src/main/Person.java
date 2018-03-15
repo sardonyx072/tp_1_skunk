@@ -17,4 +17,5 @@ public class Person {
 	}
 	public UUID getUUID() {return this.uuid;}
 	public String getName() {return this.name;}
+	public void setName(String name) {this.name = name;}
 }
