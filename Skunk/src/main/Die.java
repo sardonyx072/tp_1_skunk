@@ -32,5 +32,5 @@ public abstract class Die implements Rollable {
 	
 	public int[] getValues() {return this.values;}
 	
-	public String flatten() {return Arrays.toString(this.values);}
+	public String flatten() {return this.getClass().getName()+Arrays.toString(this.values).replaceAll(" ", "");}
 }

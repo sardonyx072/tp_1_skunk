@@ -35,7 +35,7 @@ public class CommandLineClient extends Client {
 			PLAYER_SCORE_WIDTH = Integer.toString(Integer.MAX_VALUE).length();
 	private static final String DEFAULT_SAVE_LOCATION = "./sav/", SAVE_EXTENSION = ".skg";
 	private static final String DEFAULT_INFO = "Choose an option.";
-	private static final Dice DICE = new StandardDice();
+	private static final Dice DICE = new Dice(new Die[] {new RandomDie(new int[] {0,1,2,3,4}), new RandomDie(new int[] {5,6,7,8,9})});
 	private static final int BOT_RISK_THRESHOLD = 15;
 	private Scanner in;
 	private boolean quit;
@@ -45,7 +45,7 @@ public class CommandLineClient extends Client {
 		this.in = new Scanner(IPUT);
 		this.quit = false;
 		this.info = new ArrayList<String>();
-		this.game = new Game(new Player[] {}, DICE);
+		this.game = new Game(DICE);
 	}
 	private String promptGetString(String prompt) {
 		final String FAIL = "";
@@ -187,9 +187,9 @@ public class CommandLineClient extends Client {
 			//System.out.flush();
 		} catch (final Exception e) {LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));}
 		//print to console
-		OPUT.println("Game: " + this.game.getNumGames());
+		OPUT.println("Game: " + this.game.getGameNum());
 		OPUT.println(String.format("%" + PLAYER_INDICATOR_WIDTH + "s", " ") + "Kitty: " + this.game.getKitty());
-		OPUT.println(String.format("%" + PLAYER_INDICATOR_WIDTH + "s", " ") + "Target: " + this.game.getTarget() + (this.game.getTargetPlayer() != null ? " (" + this.game.getTargetPlayer().getName() + ")" : ""));
+		OPUT.println(String.format("%" + PLAYER_INDICATOR_WIDTH + "s", " ") + "Target: " + this.game.getTargetScore() + (this.game.getTargetPlayer() != null ? " (" + this.game.getTargetPlayer().getName() + ")" : ""));
 		OPUT.println(
 				String.format("%-" + (PLAYER_INDICATOR_WIDTH + PLAYER_NUM_WIDTH + 1 + COLUMN_SEPARATOR_WIDTH + PLAYER_NAME_WIDTH) + "s", "Players")
 				+ COLUMN_SEPARATOR + String.format("%-" + PLAYER_CHIPS_WIDTH + "s", "Chips")
@@ -204,9 +204,9 @@ public class CommandLineClient extends Client {
 						// indicator
 						(players[i] == this.game.getCurrentPlayer() ? String.format("%" + PLAYER_INDICATOR_WIDTH + "s", PLAYER_CURRENT_INDICATOR) : players[i] == this.game.getTargetPlayer() ? String.format("%" + PLAYER_INDICATOR_WIDTH + "s", PLAYER_TARGET_INDICATOR) : String.format("%" + PLAYER_INDICATOR_WIDTH + "s", " "))
 						// name and chips
-						+ String.format("%" + PLAYER_NUM_WIDTH + "s", (i+1)) + "." + COLUMN_SEPARATOR + String.format("%-"+PLAYER_NAME_WIDTH+"s", players[i].getName()) + COLUMN_SEPARATOR + String.format("%-"+PLAYER_CHIPS_WIDTH+"s", players[i].getChips())
+						+ String.format("%" + PLAYER_NUM_WIDTH + "s", (i+1)) + "." + COLUMN_SEPARATOR + String.format("%-"+PLAYER_NAME_WIDTH+"s", players[i].getName()) + COLUMN_SEPARATOR + String.format("%-"+PLAYER_CHIPS_WIDTH+"s", this.game.getChips().get(players[i]))
 						// score
-						+ COLUMN_SEPARATOR + String.format("%-"+PLAYER_SCORE_WIDTH+"s", this.game.getScores().get(players[i]) + (players[i] == this.game.getCurrentPlayer() ? "+" + this.game.getCurrentTurnScore() + "=" + (this.game.getScores().get(players[i])+this.game.getCurrentTurnScore()) : ""))
+						+ COLUMN_SEPARATOR + String.format("%-"+PLAYER_SCORE_WIDTH+"s", this.game.getScores().get(players[i]) + (players[i] == this.game.getCurrentPlayer() ? "+" + this.game.getCurrentScore() + "=" + (this.game.getScores().get(players[i])+this.game.getCurrentScore()) : ""))
 				);
 		}
 		LOGGER.exiting(this.getClass().getName(), "update");
@@ -252,12 +252,12 @@ public class CommandLineClient extends Client {
 				switch (args[0].toLowerCase()) {
 				case "0":
 				case "human":
-					this.game.addPlayer(new Player(args.length >= 2 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "Player"+(this.game.getPlayers().length+1),0), 0);
+					this.game.addPlayer(new Player(args.length >= 2 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "Player"+(this.game.getPlayers().length+1)));
 					break;
 				case "1":
 				case "simple":
 				case "bot":
-					this.game.addPlayer(new SimpleBotPlayer(0,BOT_RISK_THRESHOLD), 0);
+					this.game.addPlayer(new SimpleBotPlayer(BOT_RISK_THRESHOLD));
 					break;
 				default:
 					this.info.add("Invalid player type.");
@@ -267,13 +267,13 @@ public class CommandLineClient extends Client {
 			if (args.length >= 2) {
 				int inInt = Integer.parseInt(args[1]);
 				try {
-					for (int i = 0; i < inInt; i++) this.game.addPlayer(new Player("Player" + (this.game.getPlayers().length+1),0), 0);
+					for (int i = 0; i < inInt; i++) this.game.addPlayer(new Player("Player" + (this.game.getPlayers().length+1)));
 				} catch (Exception e) {}
 			}
 			if (args.length >= 3) {
 				int inInt = Integer.parseInt(args[2]);
 				try {
-					for (int i = 0; i < inInt; i++) this.game.addPlayer(new SimpleBotPlayer(0,BOT_RISK_THRESHOLD), 0);
+					for (int i = 0; i < inInt; i++) this.game.addPlayer(new SimpleBotPlayer(BOT_RISK_THRESHOLD));
 				} catch (Exception e) {}
 			}
 			break;
@@ -300,17 +300,17 @@ public class CommandLineClient extends Client {
 				int inInt = args.length >= 2 ? Integer.parseInt(args[1]) : this.promptGetInt("Give chips to which player?: ");
 				if (inInt == 0) {
 					inInt = args.length >= 3 ? Integer.parseInt(args[2]) : this.promptGetInt("Give how many chips?: ");
-					for (Player player : this.game.getPlayers()) player.giveChips(inInt);
+					for (Player player : this.game.getPlayers()) this.game.giveChips(player, inInt);
 				}
-				else if (inInt > 0) this.game.getPlayers()[inInt-1].giveChips(args.length >= 3 ? Integer.parseInt(args[2]) : this.promptGetInt("Give how many chips?: "));
+				else if (inInt > 0) this.game.giveChips(this.game.getPlayers()[inInt-1],args.length >= 3 ? Integer.parseInt(args[2]) : this.promptGetInt("Give how many chips?: "));
 			} catch (Exception e) {this.info.add("Invalid player selection.");}
 			break;
 		case "take":
 			LOGGER.finest("executing input [take chips] for inactive game");
 			try {
 				int inInt = args.length >= 2 ? Integer.parseInt(args[1]) : this.promptGetInt("Take chips from which player?: ");
-				if (inInt == 0) for (Player player : this.game.getPlayers()) player.takeChips(args.length >= 3 ? Integer.parseInt(args[2]) : this.promptGetInt("Take how many chips?: "));
-				else if (inInt > 0) this.game.getPlayers()[inInt-1].takeChips(args.length >= 3 ? Integer.parseInt(args[2]) : this.promptGetInt("Take how many chips?: "));
+				if (inInt == 0) for (Player player : this.game.getPlayers()) this.game.takeChips(player,args.length >= 3 ? Integer.parseInt(args[2]) : this.promptGetInt("Take how many chips?: "));
+				else if (inInt > 0) this.game.takeChips(this.game.getPlayers()[inInt-1],args.length >= 3 ? Integer.parseInt(args[2]) : this.promptGetInt("Take how many chips?: "));
 			} catch (Exception e) {this.info.add("Invalid player selection.");}
 			break;
 		case "start":
@@ -320,13 +320,17 @@ public class CommandLineClient extends Client {
 			if (args.length >= 2) {
 				int inInt = Integer.parseInt(args[1]);
 				try {
-					for (int i = 0; i < inInt; i++) this.game.addPlayer(new Player("Player" + this.game.getPlayers().length+1,50), 0);
+					for (int i = 0; i < inInt; i++) {
+						Player p = new Player("Player" + this.game.getPlayers().length+1);
+						this.game.addPlayer(p);
+						this.game.giveChips(p, 50);
+					}
 				} catch (Exception e) {}
 			}
 			if (args.length >= 3) {
 				int inInt = Integer.parseInt(args[2]);
 				try {
-					for (int i = 0; i < inInt; i++) this.game.addPlayer(new SimpleBotPlayer(50,BOT_RISK_THRESHOLD), 0);
+					for (int i = 0; i < inInt; i++) this.game.addPlayer(new SimpleBotPlayer(BOT_RISK_THRESHOLD));
 				} catch (Exception e) {}
 			}
 			if (!this.game.setActive(true)) this.info.add("Could not start the game. Check settings and try again.");

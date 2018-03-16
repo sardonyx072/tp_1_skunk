@@ -10,11 +10,11 @@ public abstract class BotPlayer extends Player {
 	private static String[] NAMES = null;
 	static {try{NAMES = Files.readAllLines(Paths.get("src/main/resources/botnames.txt"),Charset.defaultCharset()).stream().toArray(String[]::new);} catch (Exception e) {NAMES = new String[] {"error"};}}
 	protected int riskThreshold;
-	public BotPlayer(int chips, int riskThreshold) {
-		this(NAMES[(int)(Math.random()*NAMES.length)],UUID.randomUUID(),chips,riskThreshold);
+	public BotPlayer(int riskThreshold) {
+		this(NAMES[(int)(Math.random()*NAMES.length)],UUID.randomUUID(),riskThreshold);
 	}
-	public BotPlayer(String name, UUID uuid, int chips, int riskThreshold) {
-		super(name,uuid,chips);
+	public BotPlayer(String name, UUID uuid, int riskThreshold) {
+		super(name.substring(name.length()-TAG.length()).equals(TAG) ? name.substring(0, name.length()-TAG.length()) : name,uuid);
 		this.riskThreshold = riskThreshold;
 	}
 	public abstract String act(Game game);
