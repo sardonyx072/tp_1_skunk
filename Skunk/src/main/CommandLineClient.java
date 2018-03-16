@@ -40,7 +40,6 @@ public class CommandLineClient extends Client {
 	private Scanner in;
 	private boolean quit;
 	private List<String> info;
-	private Game game;
 	
 	public CommandLineClient() {
 		this.in = new Scanner(IPUT);
@@ -162,13 +161,11 @@ public class CommandLineClient extends Client {
 				System.out.println(this.game.getCurrentPlayer().getName() + " is the Winner!");
 				if (this.promptGetConfirm("Play again? [y/n]: ",null)) {
 					this.quit = false;
-					this.game = null;
 				}
 			}
 			else if(this.game!=null && this.game.isActive()) {
 				if (this.promptGetConfirm("Play a game? [y/n]: ",null)) {
 					this.quit = false;
-					this.game = null;
 				}
 			}
 		}
@@ -255,12 +252,12 @@ public class CommandLineClient extends Client {
 				switch (args[0].toLowerCase()) {
 				case "0":
 				case "human":
-					this.game.getScores().put(new Player(args.length >= 2 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "Player"+(this.game.getPlayers().length+1),0), 0);
+					this.game.addPlayer(new Player(args.length >= 2 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "Player"+(this.game.getPlayers().length+1),0), 0);
 					break;
 				case "1":
 				case "simple":
 				case "bot":
-					this.game.getScores().put(new SimpleBotPlayer(0,BOT_RISK_THRESHOLD), 0);
+					this.game.addPlayer(new SimpleBotPlayer(0,BOT_RISK_THRESHOLD), 0);
 					break;
 				default:
 					this.info.add("Invalid player type.");
@@ -270,13 +267,13 @@ public class CommandLineClient extends Client {
 			if (args.length >= 2) {
 				int inInt = Integer.parseInt(args[1]);
 				try {
-					for (int i = 0; i < inInt; i++) this.game.getScores().put(new Player("Player" + (this.game.getPlayers().length+1),0), 0);
+					for (int i = 0; i < inInt; i++) this.game.addPlayer(new Player("Player" + (this.game.getPlayers().length+1),0), 0);
 				} catch (Exception e) {}
 			}
 			if (args.length >= 3) {
 				int inInt = Integer.parseInt(args[2]);
 				try {
-					for (int i = 0; i < inInt; i++) this.game.getScores().put(new SimpleBotPlayer(0,BOT_RISK_THRESHOLD), 0);
+					for (int i = 0; i < inInt; i++) this.game.addPlayer(new SimpleBotPlayer(0,BOT_RISK_THRESHOLD), 0);
 				} catch (Exception e) {}
 			}
 			break;
@@ -323,13 +320,13 @@ public class CommandLineClient extends Client {
 			if (args.length >= 2) {
 				int inInt = Integer.parseInt(args[1]);
 				try {
-					for (int i = 0; i < inInt; i++) this.game.getScores().put(new Player("Player" + this.game.getPlayers().length+1,50), 0);
+					for (int i = 0; i < inInt; i++) this.game.addPlayer(new Player("Player" + this.game.getPlayers().length+1,50), 0);
 				} catch (Exception e) {}
 			}
 			if (args.length >= 3) {
 				int inInt = Integer.parseInt(args[2]);
 				try {
-					for (int i = 0; i < inInt; i++) this.game.getScores().put(new SimpleBotPlayer(50,BOT_RISK_THRESHOLD), 0);
+					for (int i = 0; i < inInt; i++) this.game.addPlayer(new SimpleBotPlayer(50,BOT_RISK_THRESHOLD), 0);
 				} catch (Exception e) {}
 			}
 			if (!this.game.setActive(true)) this.info.add("Could not start the game. Check settings and try again.");
@@ -356,42 +353,6 @@ public class CommandLineClient extends Client {
 		client.run();
 	}
 }
-
-
-//1SKUNK
-//1SK1DC
-//2SKUNK
-
-/*
-=====================================================
-BASIC
-=====================================================
-game 0001: [Aaron   ] {[Billy   ]} [Chuck   ]
-    chips: [12      ] {[12      ]} [12      ]
-    score: [12      ] {[12      ]} [16      ]
-     turn:            {[34      ]} #TARGET###
-
-=====================================================
-BASIC-UPDATED
-=====================================================
-game 0001: [All     ]  [Aaron   ] {[Billy   ]} [Chuck   ]
-    chips: [        ]  [12      ] {[12      ]} [12      ] Kitty: 5
-    score: [        ]  [12      ] {[12      ]} [16      ] Target: 100
-     turn:                        {[34      ]} #TARGET###
-
-=====================================================
-DETAILED
-=====================================================
-game 0001: [All     ]  [Aaron   ] {[Billy   ]} [Chuck   ]
-    chips: [        ]  [12      ] {[12      ]} [12      ] Kitty: 5
-    score: [        ]  [12      ] {[12      ]} [16      ] Target: 100
-     turn:                        {[34      ]} #TARGET###
-     mean:  7
-   median:  7
-     mode:  6
-    >=1SK:  33.33%
- */
-
 
 /*
 

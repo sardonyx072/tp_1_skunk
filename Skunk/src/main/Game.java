@@ -7,12 +7,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class Game {
+	private static enum PlayerInfo {
+		CHIPS,
+		SCORE,
+		STATE;
+	}
 	private static final int MAX_PLAYERS = 1023, MAX_STARTING_CHIPS_PER_PLAYER = 2097152;
 	private static final int DEFAULT_TARGET = 100;
 	private static final String SEPARATOR = "::";
@@ -26,65 +33,82 @@ public class Game {
 		} catch (Exception e) {e.printStackTrace();}
 	}
 	private Dice dice;
-	private CircularLinkedHashMap<Player,Integer> scores;
-	private boolean isActive;
-	private int kitty;
-	private int target;
-	private Player targetPlayer;
-	private Player currentPlayer;
-	private int turnScore;
-	private int numGamesThisMatch;
 	private Stat stats;
+	private CircularLinkedHashMap<Player,HashMap<PlayerInfo,Integer>> info;
+	private Player targetPlayer;
+	private int targetScore;
+	private Player currentPlayer;
+	private int currentScore;
+	private int kitty;
+	private boolean isActive;
+	private int gameNum;
 	
-	public Game(Player[] players, Dice dice) {
-		this.scores = new CircularLinkedHashMap<Player,Integer>();
-		Arrays.asList(players).stream().forEach(player -> this.addPlayer(player, 0));
-		this.currentPlayer = players.length > 0 ? players[0] : null;
-		this.targetPlayer = null;
+	public Game(Dice dice) {
 		this.dice = dice;
+		this.stats = new Stat();
+		this.info = new CircularLinkedHashMap<Player,HashMap<PlayerInfo,Integer>>();
+		this.targetPlayer = null;
+		this.targetScore = DEFAULT_TARGET;
+		this.currentPlayer = null;
+		this.currentScore = 0;
 		this.kitty = 0;
 		this.isActive = false;
-		this.target = DEFAULT_TARGET;
-		this.turnScore = 0;
-		this.numGamesThisMatch = 0;
-		this.stats = new Stat();
+		this.gameNum = 0;
 	}
 	public static int getMaxPlayers() {return MAX_PLAYERS;}
 	public static int getMaxStartingChips() {return MAX_STARTING_CHIPS_PER_PLAYER;}
-	public Player[] getPlayers() {return this.scores.keySet().toArray(new Player[this.scores.keySet().size()]);}
+	public Player[] getPlayers() {return this.info.keySet().toArray(new Player[this.info.keySet().size()]);}
+	private CircularLinkedHashMap<Player,Integer> getInfo(PlayerInfo type) {
+		CircularLinkedHashMap<Player,Integer> result = new CircularLinkedHashMap<Player,Integer>();
+		for (Player player : this.info.keySet()) result.put(player, this.info.get(player).get(type));
+		return result;
+	}
+	public CircularLinkedHashMap<Player,Integer> getScores() {return this.getInfo(PlayerInfo.SCORE);}
+	public CircularLinkedHashMap<Player,Integer> getChips() {return this.getInfo(PlayerInfo.CHIPS);}
+	public CircularLinkedHashMap<Player,Integer> getStates() {return this.getInfo(PlayerInfo.STATE);}
+	public Player getWinner() {
+		Player[] winners = (Player[]) this.getStates().entrySet().stream().filter(state -> state.getValue() == 1).map(state -> state.getKey()).toArray();
+		if (winners.length == 1)
+			return winners[0];
+		else if (winners.length == 0)
+			return null;
+		else {
+			LOGGER.warning("Too many players in winning state. Check game state.");
+			return null;
+		}
+	}
 	public void addPlayer(Player player) {
-		this.addPlayer(player, 0);
+		HashMap<PlayerInfo,Integer> info = new HashMap<PlayerInfo,Integer>();
+		info.put(PlayerInfo.SCORE,0);
+		info.put(PlayerInfo.CHIPS,0);
+		info.put(PlayerInfo.STATE,0);
+		this.info.put(player, info);
+		if (this.currentPlayer == null) this.currentPlayer = player;
 	}
-	public void addPlayer(Player player, int score) {
-		if (player != null) {
-			this.scores.put(player, 0);
-			if (this.currentPlayer == null)
-				this.currentPlayer = player;
+	public void removePlayer(Player player) {
+		if (this.currentPlayer == player) {
+			this.currentPlayer = this.getPlayers().length > 1 ? this.info.getKeyAfter(player) : null;
+			this.currentScore = 0;
+		}
+		this.info.remove(player);
+		if (this.targetPlayer == player) {
+			Player highest = this.getScores().entrySet().stream().max((score1,score2) -> score1.getValue()-score2.getValue()).get().getKey();
+			if (this.getScores().get(highest) > DEFAULT_TARGET) {
+				this.targetPlayer = highest;
+				this.targetScore = this.getScores().get(highest);
+			}
 		}
 	}
-	public void removePlayer(int i) {
-		if (0 <= i && i < this.scores.size()) {
-			Player removed = this.getPlayers()[i];
-			if (this.currentPlayer == removed) {
-				this.currentPlayer = this.getPlayers().length > 1 ? this.scores.getKeyAfter(removed) : null;
-				this.turnScore = 0;
-			}
-			if (this.targetPlayer == removed) {
-				this.targetPlayer = null;
-				this.target = DEFAULT_TARGET;
-			}
-			this.scores.remove(removed);
-		}
-	}
-	public CircularLinkedHashMap<Player,Integer> getScores() {return this.scores;}
-	public boolean isActive() {return this.isActive;}
-	public boolean setActive(boolean active) {return this.isActive = active;}
-	public int getKitty() {return this.kitty;}
-	public int getTarget() {return this.target;}
 	public Player getTargetPlayer() {return this.targetPlayer;}
+	public int getTargetScore() {return this.targetScore;}
 	public Player getCurrentPlayer() {return this.currentPlayer;}
-	public int getCurrentTurnScore() {return this.turnScore;}
-	public int getNumGames() {return this.numGamesThisMatch;}
+	public int getCurrentScore() {return this.currentScore;}
+	public int getKitty() {return this.kitty;}
+	public boolean isActive() {return this.isActive;}
+	public int getGameNum() {return this.gameNum;}
+	public boolean setActive(boolean active) {
+		return this.isActive = active && this.currentPlayer!=null;
+	}
 	public Stat getStats() {return this.stats;}
 	public boolean setUpTurn() {
 		while (this.isActive && this.currentPlayer instanceof BotPlayer) {
@@ -98,7 +122,7 @@ public class Game {
 	public void actRoll() {
 		int value = this.dice.roll();
 		RollType type = RollType.find(this.dice);
-		this.stats.addRoll(this.numGamesThisMatch,this.currentPlayer, type, value);
+		this.stats.addRoll(this.gameNum,this.currentPlayer, type, value);
 		String message = this.currentPlayer.getName() + " rolled " + this.dice.toString() + " (" + type + ")" + "!";
 		LOGGER.info(message);
 		this.processRoll(type, value);
@@ -109,13 +133,13 @@ public class Game {
 			this.processEnd(type, value);
 		}
 		else {
-			LOGGER.info(this.currentPlayer.getName() + "'s current total for this turn is now " + this.turnScore + ", which would bring them to an overall score of " + (this.scores.get(this.currentPlayer)+this.turnScore) + ".");
-			this.turnScore += value;
+			LOGGER.info(this.currentPlayer.getName() + "'s current total for this turn is now " + this.currentScore + ", which would bring them to an overall score of " + (this.scores.get(this.currentPlayer)+this.currentScore) + ".");
+			this.currentScore += value;
 		}
 	}
 	public void actEnd() {
-		this.stats.addEnd(this.numGamesThisMatch, this.currentPlayer);
-		LOGGER.info(this.currentPlayer.getName() + " decided to end their turn having accumulated " + this.turnScore + " extra points, for a total of " + (this.scores.get(this.currentPlayer)+this.turnScore) + " points!");
+		this.stats.addEnd(this.gameNum, this.currentPlayer);
+		LOGGER.info(this.currentPlayer.getName() + " decided to end their turn having accumulated " + this.currentScore + " extra points, for a total of " + (this.scores.get(this.currentPlayer)+this.currentScore) + " points!");
 		this.processEnd(RollType.find(this.dice),this.dice.getValue());
 	}
 	private void processEnd(RollType type, int value) {
@@ -130,16 +154,16 @@ public class Game {
 			LOGGER.info(this.currentPlayer.getName() + "'s total score is now " + this.scores.get(this.currentPlayer) + ".");
 		}
 		else {
-			LOGGER.info(this.currentPlayer.getName() + " is adding their turn score of " + this.turnScore + " to their total score.");
-			this.scores.put(this.currentPlayer, this.scores.get(this.currentPlayer) + this.turnScore);
+			LOGGER.info(this.currentPlayer.getName() + " is adding their turn score of " + this.currentScore + " to their total score.");
+			this.scores.put(this.currentPlayer, this.scores.get(this.currentPlayer) + this.currentScore);
 			LOGGER.info(this.currentPlayer.getName() + "'s total score is now " + this.scores.get(this.currentPlayer) + ".");
-			if (this.scores.get(this.currentPlayer) > this.target) {
-				LOGGER.info(this.currentPlayer.getName() + " has passed the target score of " + this.target + "! They have become the target player and set the new target at " + this.scores.get(this.currentPlayer));
-				this.target = this.scores.get(this.currentPlayer);
+			if (this.scores.get(this.currentPlayer) > this.targetScore) {
+				LOGGER.info(this.currentPlayer.getName() + " has passed the target score of " + this.targetScore + "! They have become the target player and set the new target at " + this.scores.get(this.currentPlayer));
+				this.targetScore = this.scores.get(this.currentPlayer);
 				this.targetPlayer = this.currentPlayer;
 			}
 		}
-		this.turnScore = 0;
+		this.currentScore = 0;
 		LOGGER.info(this.currentPlayer.getName() + " must pay a cost of " + type.getChipCost() + " chips this turn.");
 		this.kitty += this.currentPlayer.takeChips(type.getChipCost());
 		LOGGER.info(this.currentPlayer.getName() + " passed the dice to " + this.scores.getKeyAfter(this.currentPlayer).getName() + ".");
@@ -149,7 +173,7 @@ public class Game {
 			LOGGER.info(this.targetPlayer.getName() + " won this game and " + this.kitty + " chips!");
 			LOGGER.info("Resetting the target to " + DEFAULT_TARGET + ", kitty to 0.");
 			this.kitty = 0;
-			this.target = DEFAULT_TARGET;
+			this.targetScore = DEFAULT_TARGET;
 			this.targetPlayer = null;
 			CircularLinkedHashMap<Player,Integer> stillPlaying = new CircularLinkedHashMap<Player,Integer>();
 			for (Player player : this.scores.keySet()) {
@@ -161,11 +185,11 @@ public class Game {
 			}
 			this.scores = stillPlaying;
 			LOGGER.fine("There are " + this.scores.size() + " players remaining in the game.");
-			LOGGER.info("Game " + this.numGamesThisMatch + " is over.");
-			this.numGamesThisMatch++;
+			LOGGER.info("Game " + this.gameNum + " is over.");
+			this.gameNum++;
 			if (this.scores.keySet().stream().filter(player -> player.getChips() > 0).count() == 1) {
 				LOGGER.info(this.currentPlayer.getName() + " won the match, having accumulated all " + this.currentPlayer.getChips() + " chips!");
-				LOGGER.info("The match lasted " + this.numGamesThisMatch + " games!");
+				LOGGER.info("The match lasted " + this.gameNum + " games!");
 				this.isActive = false;
 			}
 		}
@@ -185,17 +209,17 @@ public class Game {
 			writer.write("\n:Game");
 			writer.write("\nDice" + SEPARATOR + game.dice.flatten());
 			LOGGER.fine("Wrote dice to save file");
-			writer.write("\nGameNo" + SEPARATOR + game.numGamesThisMatch);
+			writer.write("\nGameNo" + SEPARATOR + game.gameNum);
 			LOGGER.fine("Wrote game no to save file");
 			writer.write("\nKitty" + SEPARATOR + game.kitty);
 			LOGGER.fine("Wrote kitty to save file");
-			writer.write("\nTarget" + SEPARATOR + game.target);
+			writer.write("\nTarget" + SEPARATOR + game.targetScore);
 			LOGGER.fine("Wrote target to save file");
 			writer.write("\nTargetPlayer" + SEPARATOR + (game.targetPlayer != null ? game.targetPlayer.getUUID().toString() : "null"));
 			LOGGER.fine("Wrote target player to save file");
-			writer.write("\nCurrentPlayer" + SEPARATOR + game.currentPlayer.getUUID().toString());
+			writer.write("\nCurrentPlayer" + SEPARATOR + (game.currentPlayer != null ? game.currentPlayer.getUUID().toString() : "null"));
 			LOGGER.fine("Wrote current player to save file");
-			writer.write("\nTurnScore" + SEPARATOR + game.turnScore);
+			writer.write("\nTurnScore" + SEPARATOR + game.currentScore);
 			LOGGER.fine("Wrote turn score to save file");
 			writer.write("\nisActive" + SEPARATOR + game.isActive);
 			LOGGER.fine("Wrote is ended to save file");
@@ -245,7 +269,7 @@ public class Game {
 			in = reader.readLine();
 			parts = in.split(SEPARATOR);
 			assert parts[0].equals("GameNo");
-			game.numGamesThisMatch = Integer.parseInt(parts[1]);
+			game.gameNum = Integer.parseInt(parts[1]);
 			LOGGER.fine("loaded game no");
 			// kitty
 			in = reader.readLine();
@@ -257,7 +281,7 @@ public class Game {
 			in = reader.readLine();
 			parts = in.split(SEPARATOR);
 			assert parts[0].equals("Target");
-			game.target = Integer.parseInt(parts[1]);
+			game.targetScore = Integer.parseInt(parts[1]);
 			LOGGER.fine("loaded target");
 			// target player
 			in = reader.readLine();
@@ -277,7 +301,7 @@ public class Game {
 			in = reader.readLine();
 			parts = in.split(SEPARATOR);
 			assert parts[0].equals("TurnScore");
-			game.turnScore = Integer.parseInt(parts[1]);
+			game.currentScore = Integer.parseInt(parts[1]);
 			LOGGER.fine("loaded turnscore");
 			// is ended
 			in = reader.readLine();

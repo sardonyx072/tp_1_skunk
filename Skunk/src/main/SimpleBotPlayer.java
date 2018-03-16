@@ -10,7 +10,7 @@ public class SimpleBotPlayer extends BotPlayer {
 		super(name,uuid,chips,riskThreshold);
 	}
 	public String act(Game game) {
-		if (game.getCurrentTurnScore() > this.riskThreshold) return "End";
+		if (game.getCurrentScore() > this.riskThreshold) return "End";
 		else return "Roll";
 	}
 }
