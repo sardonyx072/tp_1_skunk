@@ -1,108 +1,195 @@
+Aage Bohr
+Abdolkarim Soroush
+Abraham Joshua Heschel
 Ada Lovelace
 Adam Smith
 Adi Shamir
+Adi Shankara
+Alain de Botton
 Alan Kay
 Alan Perlis
-Alan turing
+Alan Turing
+Alan Watts
 Albert Camus
 Albert Einstein
+Albert Schweitzer
 Alessandro Volta
+Alexander Bain
 Alexander Fleming
 Alexander Graham Bell
+Alexander Herzen
+Alfred Korzybski
 Alfred Nobel
+Alfred North Whitehead
+Alfred Wegener
+Allan Bloom
 Alonzo Church
+Alphonsus Liguori
+Amartya Sen
+Amedeo Avogadro
+Anaxagoras
+Anaximander
+Andre-Marie Ampere
 Andrew S. Tanenbaum
+Anicius Manlius Severinus Boethius
+Anna Comnena
 Antoine Lavoisier
 Antoine van Leeowenhoek
 Archimedes
+Aristarchus
 Aristotle
 Arthur Compton
 Arthur Schopenhauer
 Auguste Comte
 Augustine of Hippo
+Averroes
 Avicenna
 Avogadro
 B. F. Skinner
 Barbara Liskov
 Baruch Spinoza
-Berhard Riemann
+Benjamin Franklin
+Bernhard Riemann
 Bertrand Russell
 Betty Holberton
 Bill Gates
 Bjarne Stroustrup
 Blaise Pascal
+Bob Black
+Brahmagupta
 Bram Cohen
 Brendan Eich
 Brian Kernighan
+C. S. Lewis
+C. V. Raman
+Carl Friedrich Gauss
 Carl Sagan
 Carl Sassenrath
+Chanakya
 Charles Babbage
 Charles Darwin
 Charles Townes
+Chen-Ning Yang
+Christina Hoff Sommers
+Cicero
 Claude Shannon
 Claudius Ptolemy
 Clinton Davisson
 Confucius
 Craig Venter
+Dallas Willard
+Daniel Bernoulli
+Daniel Dennett
+David Hilbert
 David Hume
+Debendranath Tagore
+Democritus
+Deng Xiaoping
 Dennis Ritchie
+Desiderius Erasmus
 Diogenes
+Diogenes of Sinope
+Dmitri Mendeleev
 Dmitri Mendeleev
 Donald Knuth
 Edgar F. Codd
+Edith Stein
+Edmund Burke
 Edmund Husserl
 Edsger W. Dijkstra
+Edward Teller
 Edwin Hubble
 Elon Musk
+Emile Durkheim
+Emmy Noether
+Empedocles
 Enrico Fermi
 Epictetus
 Epicurus
-eric Schmidt
+Eratosthenes
+Eric Schmidt
+Ernest Lawrence
 Ernest Rutherford
 Ernest Walton
+Erwin Chargaff
 Erwin Schroedinger
+Ethan Allen
 Euclid
+F. H. Bradley
+Fibonacci
 Frances Allen
 Frances Kelsey
 Francis Bacon
 Francis Crick
+Francis Schaeffer
+Frank Drake
 Franz Mesmer
 Fred Brooks
+Fred Hoyle
+Friedrich Engels
 Friedrich Nietzsche
+Friedrich Schiller
+Fyodor Dostoevsky
+Galen
 Galileo Galilei
-Georg Wilhelm Friedrich
+Gene Shoemaker
+Georg Wilhelm Friedrich Hegel
 George Berkeley
+George Boole
+George Santayana
 George Wald
 George Washington Carver
 Georges Cuvier
 Georges Lemaitre
+Glenn Seaborg
+Gottfried W. Leibniz
 Gottfried Wilhelm Beibniz
 Grace Hopper
 Gregor Mendel
 Guglielmo Marconi
 Guido van Rossum
 Hannah Arendt
+Hans Christian Oersted
+Harold Urey
 Hedy Lamarr
+Heinrich Hertz
+Henri Bergson
 Henrietta Leavitt
 Henry David Thoreau
+Henry Moseley
 Heraclitus
+Herbert Spencer
+Hildegard of Bingen
+Hipparchus
 Hippocrates
+Hypatia
+Ibn Khaldun
+Ibn-al-Haytham
 Immanuel Kant
+Imre Lakatos
 Inge Lehmann
 Irene Joliot-Curie
 Isaac Newton
+Ishwar Chandra Vidyasagar
 J. J. Thomson
 J. Willard Gibbs
+Jabir Ibn Hayyan
+Jack Horner
 Jacob Berzelius
 Jacques Derrida
+James Chadwick
 James Clerk Maxwell
 James Gosling
 James Hutton
 James Prescott Joule
 James Watson
+Jane Marcet
+Jean Le Rond d'Alembert
+Jean Piaget
 Jean-Jacques Rousseau
 Jean-Paul Sartre
 Jeremy Bentham
+Jiddu Krishnamurti
 Jim Gray
 Johannes Kepler
 John Backus
@@ -111,66 +198,136 @@ John Dewey
 John Locke
 John Mauchly
 John McCarthy
+John Rawls
 John Stuart Mill
 John von Neumann
+Jonathan Edwards
+Joseph Henry
+Joseph Priestly
 Judea Pearl
 Karl Marx
+Karl Popper
 Ken Thompson
+Ken Wilber
+Khalil Gibran
+Kurt Godel
+L'udovit Stur
 Laozi
 Larry Page
+Lawrence Bragg
+Leon Trotsky
 Leonardo da Vinci
+Leonhard Euler
 Leslie Lamport
 Linus Pauling
 Lise Maitner
 Louis Pasteur
+Lucius Annaeus Seneca
+Ludwig von Mises
 Ludwig Wittgenstein
+Luis Alvarez
+Maimonides
+Marguerite Perey
+Maria Gaetana Agnesi
 Marie Curie
 Marissa Mayer
 Mark Zuckerberg
+Marquis de Condorcet
+Martin Buber
 Martin Heidegger
 Mary Anning
 Mary Wollstonecraft
 Max Planck
+Meister Eckhart
+Mencius
 Mervin Minsky
 Michael Faraday
 Michael O. Rabin
 Michael Stonebraker
+Michel de Montaigne
 Michel Foucault
+Michio Kaku
+Miguel de Unamuno
+Mikhail Bakunin
+Milan Rastislav Stefanik
+Mirza Fatali Akhundov
+Montesquieu
+Muhammad Iqbal
+Murray Rothbard
+Nasir al-Din al-Tusi
 Niccolo Machiavelli
+Niccolo Tartaglia
+Nicholas Murray Butler
 Nicolaus Copernicus
 Niels Bohr
 Nikola Tesla
+Nikos Kazantzakis
 Noam Chomsky
 Norbert Wiener
+Novalis
 Omar Khayyam
+Paul Bernays
 Paul Dirac
+Paul Tillich
+Paulo Freire
+Peter Kropotkin
+Peter Singer
+Petrarch
 Phillipe Pinel
+Philo
 Pierre Curie
+Pierre de Fermat
+Pierre Teilhard de Chardin
 Plato
 Pliny the Elder
+Plotinus
+Plutarch
+Protagoras
+Pythagoras
 Rachel Carson
 Radia Perlman
+Reinhold Niebuhr
 Rene Descartes
 Richard Feynman
 Robert Boyle
+Robert Bunsen
 Robert Hooke
+Robert M. Pirsig
+Roger Bacon
 Roland Barthes
+Ronald Fisher
+Rosa Luxemburg
 Rosalind Franklin
+Rudolph Steiner
 Rudolph Virchow
 S. N. Bose
+Saint Augustine
+Saint Theresa of Avila
+Sarvepalli Radhakrishnan
 Seneca the Younger
+Sergei Winogradsky
 Sergey Brin
 Shafi Goldwasser
 Sigmund Freud
 Simone de Beauvoir
+Sir Syed Ahmad Khan
 Sophie Germain
 Sophocles
 Soren Kierkegaard
+Srinivasa Ramanujan
+Stephanie Kwolek
 Stephen Cook
 Stephen Hawking
 Stephen Jay Gould
 Steve Wozniak
+Strabo
+Subrahmanyan Chandrasekhar
+Sun Tzu
+Terence McKenna
+Thales
+Thales of Miletus
 Thomas Aquinas
+Thomas Carlyle
 Thomas Edison
 Thomas Gold
 Thomas Harriot
@@ -178,9 +335,22 @@ Thomas Hobbes
 Thomas Kuhn
 Tim Berners-Lee
 Tony Hoare
+Tycho Brahe
+Umbert Eco
 Vint Cerf
+Vladimir Lenin
 Voltaire
+Walter Benjamin
+Will Durant
+Willard Gibbs
+William Desmond Taylor
 William Gilbert
+William Godwin
 William James
+William Penn
+William Ramsay
 William Thomson
+William Wallace
+Xenophon
 Yukihiro Matsumoto
+Zoroaster
