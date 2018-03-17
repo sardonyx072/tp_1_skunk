@@ -32,7 +32,7 @@ public class Stat {
 	}
 	public String printHistory(String separator) {
 		StringBuilder result = new StringBuilder();
-		result.append(":Opts");
+		result.append(":History");
 		this.points.stream().forEach(point -> result.append("\n" + (point instanceof RollPoint ? 
 				"Roll"+separator+point.game+separator+point.player.getUUID()+separator+((RollPoint)point).type+separator+((RollPoint)point).value
 				: "End"+separator+point.game+separator+point.player.getUUID())));

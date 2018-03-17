@@ -157,17 +157,6 @@ public class CommandLineClient extends Client {
 				if (!this.quit)
 					this.getInput();
 			}
-			if (this.game!=null && !this.game.isActive()) {
-				System.out.println(this.game.getCurrentPlayer().getName() + " is the Winner!");
-				if (this.promptGetConfirm("Play again? [y/n]: ",null)) {
-					this.quit = false;
-				}
-			}
-			else if(this.game!=null && this.game.isActive()) {
-				if (this.promptGetConfirm("Play a game? [y/n]: ",null)) {
-					this.quit = false;
-				}
-			}
 		}
 		try {
 			this.in.close();

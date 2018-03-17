@@ -10,5 +10,6 @@ public class Player extends Person {
 	public Player(String name, UUID uuid) {
 		super(name, uuid);
 	}
+	public String toString() {return "{"+this.getName()+","+this.getUUID()+"}";}
 	// TODO stats?
 }

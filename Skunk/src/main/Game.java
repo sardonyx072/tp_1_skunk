@@ -18,7 +18,7 @@ public class Game {
 		STATE;
 	}
 	private static final int MAX_PLAYERS = 1023, MAX_STARTING_CHIPS_PER_PLAYER = 2097152;
-	private static final String SEPARATOR = "|", ILLEGAL_CHARS = SEPARATOR+"";
+	private static final String SEPARATOR = "|", ILLEGAL_CHARS = SEPARATOR+""; // string splitting with | requires \\| instead because of regex. TODO pick a different delimeter
 	private static final int DEFAULT_TARGET = 100;
 	private static Logger LOGGER = null;
 	static {
@@ -65,7 +65,7 @@ public class Game {
 	public CircularLinkedHashMap<Player,Integer> getScores() {return this.getInfo(PlayerInfoType.SCORE);}
 	public CircularLinkedHashMap<Player,Integer> getChips() {return this.getInfo(PlayerInfoType.CHIPS);}
 	public CircularLinkedHashMap<Player,Integer> getStates() {return this.getInfo(PlayerInfoType.STATE);}
-	public Player[] getPlayersStillIn() {return (Player[]) this.getStates().entrySet().stream().filter(entry -> entry.getValue() != -1).map(entry -> entry.getKey()).toArray();}
+	public Player[] getPlayersStillIn() {return (Player[]) this.getStates().entrySet().stream().filter(entry -> entry.getValue() != -1).map(entry -> entry.getKey()).toArray(Player[]::new);}
 	public boolean hasWinner() {return this.getPlayersStillIn().length==1;}
 	public void addPlayer(Player player) {
 		HashMap<PlayerInfoType,Integer> info = new HashMap<PlayerInfoType,Integer>();
@@ -161,7 +161,8 @@ public class Game {
 			this.targetPlayer = this.currentPlayer;
 			this.targetScore = this.getScores().get(this.targetPlayer);
 		}
-		LOGGER.info(this.currentPlayer.getName() + " passed the dice to " + (this.currentPlayer = this.getScores().getKeyAfter(this.currentPlayer)).getName() + ".");
+		do {this.currentPlayer = this.getScores().getKeyAfter(this.currentPlayer);} while (this.currentPlayer!=this.targetPlayer && this.getStates().get(this.currentPlayer)==-1);
+		LOGGER.info("Dice were passed to " + (this.currentPlayer = this.getScores().getKeyAfter(this.currentPlayer)).getName() + ".");
 		if (this.currentPlayer == this.targetPlayer) { // game over
 			LOGGER.info(this.targetPlayer.getName() + " won game " + this.gameNum + ", earning " + this.kitty + " chips from the kitty!");
 			this.info.get(this.targetPlayer).put(PlayerInfoType.CHIPS, this.getChips().get(this.targetPlayer)+this.kitty);
@@ -205,6 +206,7 @@ public class Game {
 					game.getChips().get(player).toString(),
 					game.getScores().get(player).toString()
 				}));
+			writer.write(":MetaInf");
 			for (Object param : new Object[] {
 				game.targetPlayer == null ? "null" : game.targetPlayer.getUUID().toString(),
 				game.targetScore,
@@ -229,39 +231,45 @@ public class Game {
 		BufferedReader reader = null;
 		try {
 			Dice dice = null;
+			String line;
 			String[] parts;
 			LOGGER.info("Attempting to load game from file \"" + file + "\"...");
 			reader = new BufferedReader(new FileReader(file));
 			// dice
 			parts = reader.readLine().split(" ");
-			dice = (Dice) Class.forName(parts[0]).getConstructor().newInstance(parts.length > 1 ? (Die[]) Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length)).stream().map(die -> {
+			dice = (Dice) Class.forName(parts[0]).getConstructors()[0].newInstance(parts.length > 1 ? new Object[] {Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length)).stream().map(die -> {
 				try {
-					return (Die) Class.forName(die.substring(0,die.indexOf('['))).getConstructor().newInstance((int[]) Arrays.asList(die.substring(die.indexOf('[')+1,die.length()-1).split(",")).stream().mapToInt(num -> Integer.parseInt(num)).toArray());
+					return (Die) Class.forName(die.substring(0,die.indexOf('['))).getConstructors()[0].newInstance(Arrays.asList(die.substring(die.indexOf('[')+1,die.length()-1).split(",")).stream().mapToInt(num -> Integer.parseInt(num)).toArray());
 				} catch (Exception e) {
 					LOGGER.warning(e.getMessage() + Arrays.asList(e.getStackTrace()).stream().map(elem -> elem.toString()).reduce("",(out,elem) -> out+"\r\n\t"+elem));
 					return null;
 				}
-			}).toArray() : new Object[] {}); // i want to personally apologize for this line.
+			}).toArray(Die[]::new)} : new Object[] {}); // i want to personally apologize for this line.
 			game = new Game(dice);
+			LOGGER.fine("successfully created new game object");
 			// players
-			while ((parts = reader.readLine().split(SEPARATOR))!=null && parts[0].equals("Player")) {
-				Player player = (Player) Class.forName(parts[1].substring(0, parts[1].contains("[") ? parts[1].indexOf("[") : parts[1].length())).getConstructor().newInstance(parts[3],UUID.fromString(parts[2])); 
+			while ((line = reader.readLine())!=null && (parts = line.split("\\"+SEPARATOR))!=null && parts[0].equals("Player")) {
+				Player player = (Player) Class.forName(parts[1].substring(0, parts[1].contains("[") ? parts[1].indexOf("[") : parts[1].length())).getConstructors()[1].newInstance(parts[1].contains("[") ? new Object[] {parts[3],UUID.fromString(parts[2]),Integer.parseInt(parts[1].substring(parts[1].indexOf('[')+1,parts[1].length()-1))} : new Object[] {parts[3],UUID.fromString(parts[2])}); 
 				game.addPlayer(player);
 				game.info.get(player).put(PlayerInfoType.STATE, Integer.parseInt(parts[4]));
 				game.info.get(player).put(PlayerInfoType.CHIPS, Integer.parseInt(parts[5]));
 				game.info.get(player).put(PlayerInfoType.SCORE, Integer.parseInt(parts[6]));
+				LOGGER.info("successfully parsed player " + player.getName());
 			}
 			// meta
-			game.targetPlayer = (parts = reader.readLine().split(SEPARATOR))!=null && !parts[0].equals("null") ? game.getPlayer(UUID.fromString(parts[0])) : null;
-			game.targetScore = (parts = reader.readLine().split(SEPARATOR))!=null ? Integer.parseInt(parts[0]) : DEFAULT_TARGET;
-			game.currentPlayer = (parts = reader.readLine().split(SEPARATOR))!=null && !parts[0].equals("null") ? game.getPlayer(UUID.fromString(parts[0])) : null;
-			game.currentScore = (parts = reader.readLine().split(SEPARATOR))!=null ? Integer.parseInt(parts[0]) : 0;
-			game.kitty = (parts = reader.readLine().split(SEPARATOR))!=null ? Integer.parseInt(parts[0]) : 0;
-			game.isActive = (parts = reader.readLine().split(SEPARATOR))!=null ? Boolean.parseBoolean(parts[0]) : false;
-			game.gameNum = (parts = reader.readLine().split(SEPARATOR))!=null ? Integer.parseInt(parts[0]) : 0;
-			while ((parts = reader.readLine().split(SEPARATOR))!=null) {
-				if (parts[0].equals("Roll")) game.stats.addRoll(Integer.parseInt(parts[1]), game.getPlayer(UUID.fromString(parts[0])), RollType.valueOf(parts[3]), Integer.parseInt(parts[4]));
-				else if (parts[0].equals("End")) game.stats.addEnd(Integer.parseInt(parts[1]), game.getPlayer(UUID.fromString(parts[0])));
+			LOGGER.fine("starting to create meta information");
+			game.targetPlayer = (line = reader.readLine())!=null && (parts = line.split("\\"+SEPARATOR))!=null && !parts[0].equals("null") ? game.getPlayer(UUID.fromString(parts[0])) : null;
+			game.targetScore = (line = reader.readLine())!=null && (parts = line.split("\\"+SEPARATOR))!=null ? Integer.parseInt(parts[0]) : DEFAULT_TARGET;
+			game.currentPlayer = (line = reader.readLine())!=null && (parts = line.split("\\"+SEPARATOR))!=null && !parts[0].equals("null") ? game.getPlayer(UUID.fromString(parts[0])) : null;
+			game.currentScore = (line = reader.readLine())!=null && (parts = line.split("\\"+SEPARATOR))!=null ? Integer.parseInt(parts[0]) : 0;
+			game.kitty = (line = reader.readLine())!=null && (parts = line.split("\\"+SEPARATOR))!=null ? Integer.parseInt(parts[0]) : 0;
+			game.isActive = (line = reader.readLine())!=null && (parts = line.split("\\"+SEPARATOR))!=null ? Boolean.parseBoolean(parts[0]) : false;
+			game.gameNum = (line = reader.readLine())!=null && (parts = line.split("\\"+SEPARATOR))!=null ? Integer.parseInt(parts[0]) : 0;
+			// history
+			reader.readLine();
+			while ((line = reader.readLine())!=null && (parts = line.split("\\"+SEPARATOR))!=null) {
+				if (parts[0].equals("Roll")) game.stats.addRoll(Integer.parseInt(parts[1]), game.getPlayer(UUID.fromString(parts[2])), RollType.valueOf(parts[3]), Integer.parseInt(parts[4]));
+				else if (parts[0].equals("End")) game.stats.addEnd(Integer.parseInt(parts[1]), game.getPlayer(UUID.fromString(parts[2])));
 				else game = null;
 			}
 			LOGGER.info("Game loaded successfully!");
