@@ -141,7 +141,7 @@ public class Game {
 		if (type.isTurnEnded()) {
 			message = this.currentPlayer.getName() + " is forced to end their turn thanks to their (" + type + ") roll.";
 			LOGGER.info(message);
-			messages.add(message);
+			//messages.add(message);
 			messages.addAll(this.processEnd(type, value));
 		}
 		else {
