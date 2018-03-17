@@ -42,7 +42,13 @@ public class Dice implements Rollable {
 	 */
 	public int roll() {return Arrays.asList(this.dice).stream().mapToInt(die -> die.roll()).sum();}
 	
+	/**
+	 * @return a string representation of the arrays that make up the dice
+	 */
 	public String flatten() {return this.getClass().getName() + Arrays.asList(this.dice).stream().map(die -> die.flatten()).reduce("", (die1, die2) -> die1 + " " + die2);}
 	
+	/**
+	 * @return a string representation of the summation of die values
+	 */
 	public String toString() {return Arrays.asList(this.dice).stream().map(die -> Integer.toString(die.getValue())).reduce("",(die1,die2)->die1+"+"+die2).substring(1)+"="+this.getValue();}
 }
