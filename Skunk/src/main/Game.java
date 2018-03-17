@@ -110,7 +110,7 @@ public class Game {
 	public boolean isActive() {return this.isActive;}
 	public int getGameNum() {return this.gameNum;}
 	public boolean setActive(boolean active) {
-		return this.isActive = active && this.currentPlayer!=null;
+		return this.isActive = active && this.currentPlayer!=null; // and at least 1 chip in play and not all players at LOST state TODO
 	}
 	public boolean setUpTurn() {
 		while (this.isActive && this.currentPlayer instanceof BotPlayer) {
@@ -161,11 +161,16 @@ public class Game {
 			this.targetPlayer = this.currentPlayer;
 			this.targetScore = this.getScores().get(this.targetPlayer);
 		}
-		do {this.currentPlayer = this.getScores().getKeyAfter(this.currentPlayer);} while (this.currentPlayer!=this.targetPlayer && this.getStates().get(this.currentPlayer)==-1);
-		LOGGER.info("Dice were passed to " + (this.currentPlayer = this.getScores().getKeyAfter(this.currentPlayer)).getName() + ".");
+		do {
+			Player next = this.info.getKeyAfter(this.currentPlayer);
+			LOGGER.info("Passing dice from " + this.currentPlayer.getName() + " to " + next.getName());
+			this.currentPlayer = next;
+		} while (this.currentPlayer!=this.targetPlayer && this.getStates().get(this.currentPlayer)==-1);
+		LOGGER.severe("Current player is target player? " + (this.currentPlayer == this.targetPlayer));
 		if (this.currentPlayer == this.targetPlayer) { // game over
 			LOGGER.info(this.targetPlayer.getName() + " won game " + this.gameNum + ", earning " + this.kitty + " chips from the kitty!");
 			this.info.get(this.targetPlayer).put(PlayerInfoType.CHIPS, this.getChips().get(this.targetPlayer)+this.kitty);
+			for (Player player : this.getPlayersStillIn()) this.info.get(player).put(PlayerInfoType.SCORE, 0);
 			this.kitty = 0;
 			this.targetScore = DEFAULT_TARGET;
 			this.targetPlayer = null;
@@ -182,7 +187,7 @@ public class Game {
 			}
 			LOGGER.fine("There are " + this.getPlayersStillIn().length + " players remaining in the game.");
 			if (this.hasWinner()) {
-				LOGGER.info(this.targetPlayer.getName() + " won the match, having accumulated all " + this.getChips().get(this.targetPlayer) + " chips!");
+				LOGGER.info(this.currentPlayer.getName() + " won the match, having accumulated all " + this.getChips().get(this.currentPlayer) + " chips!");
 				LOGGER.info("The match lasted " + this.gameNum + " games!");
 				this.isActive = false;
 			}
@@ -206,7 +211,7 @@ public class Game {
 					game.getChips().get(player).toString(),
 					game.getScores().get(player).toString()
 				}));
-			writer.write(":MetaInf");
+			writer.write("\n:MetaInf");
 			for (Object param : new Object[] {
 				game.targetPlayer == null ? "null" : game.targetPlayer.getUUID().toString(),
 				game.targetScore,

@@ -35,7 +35,8 @@ public class CommandLineClient extends Client {
 			PLAYER_SCORE_WIDTH = Integer.toString(Integer.MAX_VALUE).length();
 	private static final String DEFAULT_SAVE_LOCATION = "./sav/", SAVE_EXTENSION = ".skg";
 	private static final String DEFAULT_INFO = "Choose an option.";
-	private static final Dice DICE = new Dice(new Die[] {new RandomDie(new int[] {0,1,2,3,4}), new RandomDie(new int[] {5,6,7,8,9})});
+	//private static final Dice DICE = new Dice(new Die[] {new RandomDie(new int[] {0,1,2,3,4}), new RandomDie(new int[] {5,6,7,8,9})});
+	private static final Dice DICE = new StandardDice();
 	private static final int BOT_RISK_THRESHOLD = 15;
 	private Scanner in;
 	private boolean quit;
@@ -310,7 +311,7 @@ public class CommandLineClient extends Client {
 				int inInt = Integer.parseInt(args[1]);
 				try {
 					for (int i = 0; i < inInt; i++) {
-						Player p = new Player("Player" + this.game.getPlayers().length+1);
+						Player p = new Player("Player" + (this.game.getPlayers().length+1));
 						this.game.addPlayer(p);
 						this.game.giveChips(p, 50);
 					}
@@ -319,7 +320,11 @@ public class CommandLineClient extends Client {
 			if (args.length >= 3) {
 				int inInt = Integer.parseInt(args[2]);
 				try {
-					for (int i = 0; i < inInt; i++) this.game.addPlayer(new SimpleBotPlayer(BOT_RISK_THRESHOLD));
+					for (int i = 0; i < inInt; i++) {
+						Player player = new SimpleBotPlayer(BOT_RISK_THRESHOLD);
+						this.game.addPlayer(player);
+						this.game.giveChips(player, 50);
+					}
 				} catch (Exception e) {}
 			}
 			if (!this.game.setActive(true)) this.info.add("Could not start the game. Check settings and try again.");
