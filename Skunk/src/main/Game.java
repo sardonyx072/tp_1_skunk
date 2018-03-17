@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -121,43 +123,64 @@ public class Game {
 		}
 		return this.isActive;
 	}
-	public void actRoll() {
+	public List<String> actRoll() {
+		String message;
+		List<String> messages = new ArrayList<String>();
 		int value = this.dice.roll();
 		RollType type = RollType.find(this.dice);
 		this.stats.addRoll(this.gameNum,this.currentPlayer, type, value);
-		String message = this.currentPlayer.getName() + " rolled " + this.dice.toString() + " (" + type + ")" + "!";
+		message = this.currentPlayer.getName() + " rolled " + this.dice.toString() + " (" + type + ")" + "!";
 		LOGGER.info(message);
-		this.processRoll(type, value);
+		messages.add(message);
+		messages.addAll(this.processRoll(type, value));
+		return messages;
 	}
-	private void processRoll(RollType type, int value) {
+	private List<String> processRoll(RollType type, int value) {
+		String message;
+		List<String> messages = new ArrayList<String>();
 		if (type.isTurnEnded()) {
-			String message = this.currentPlayer.getName() + " is forced to end their turn thanks to their (" + type + ") roll.";
+			message = this.currentPlayer.getName() + " is forced to end their turn thanks to their (" + type + ") roll.";
 			LOGGER.info(message);
-			this.processEnd(type, value);
+			messages.add(message);
+			messages.addAll(this.processEnd(type, value));
 		}
 		else {
-			LOGGER.info(this.currentPlayer.getName() + "'s current total for this turn is now " + this.currentScore + ", which would bring them to an overall score of " + (this.getScores().get(this.currentPlayer)+this.currentScore) + ".");
+			message = this.currentPlayer.getName() + "'s current total for this turn is now " + this.currentScore + ", which would bring them to an overall score of " + (this.getScores().get(this.currentPlayer)+this.currentScore) + ".";
+			LOGGER.info(message);
+			messages.add(message);
 			this.currentScore += value;
 		}
+		return messages;
 	}
-	public void actEnd() {
+	public List<String> actEnd() {
+		String message;
+		List<String> messages = new ArrayList<String>();
 		this.stats.addEnd(this.gameNum, this.currentPlayer);
-		LOGGER.info(this.currentPlayer.getName() + " decided to end their turn having accumulated " + this.currentScore + " extra points, for a total of " + (this.getScores().get(this.currentPlayer)+this.currentScore) + " points!");
-		this.processEnd(RollType.find(this.dice),this.dice.getValue());
+		message = this.currentPlayer.getName() + " decided to end their turn having accumulated " + this.currentScore + " extra points, for a total of " + (this.getScores().get(this.currentPlayer)+this.currentScore) + " points!";
+		LOGGER.info(message);
+		messages.add(message);
+		messages.addAll(this.processEnd(RollType.find(this.dice),this.dice.getValue()));
+		return messages;
 	}
-	private void processEnd(RollType type, int value) {
+	private List<String> processEnd(RollType type, int value) {
+		String message;
+		List<String> messages = new ArrayList<String>();
 		this.info.get(this.currentPlayer).put(PlayerInfoType.SCORE, (type.isGameScoreLost() ? 0 : this.getScores().get(this.currentPlayer)) + (type.isTurnScoreLost() ? 0 : this.currentScore));
-		LOGGER.info("Thanks to their (" + type + ") roll, " + this.currentPlayer.getName()
-				+ (type.getChipCost() > 0 ? " must pay " + type.getChipCost() + " chips to the kitty" : " does not have to pay any chips") + ","
-				+ (type.isTurnScoreLost() ? " lost their turn score" : " earned " + this.currentScore + " point this turn") + ","
-				+ (type.isGameScoreLost() ? " lost their game score" : " retained their game score") + ","
-				+ " and their total score is now " + this.getScores().get(this.currentPlayer) + ".");
+		message = "Thanks to their (" + type + ") roll, " + this.currentPlayer.getName()
+			+ (type.getChipCost() > 0 ? " must pay " + type.getChipCost() + " chips to the kitty" : " does not have to pay any chips") + ","
+			+ (type.isTurnScoreLost() ? " lost their turn score" : " earned " + this.currentScore + " point this turn") + ","
+			+ (type.isGameScoreLost() ? " lost their game score" : " retained their game score") + ","
+			+ " and their total score is now " + this.getScores().get(this.currentPlayer) + ".";
+		LOGGER.info(message);
+		messages.add(message);
 		this.currentScore = 0;
 		this.kitty += Math.min(type.getChipCost(), this.getChips().get(this.currentPlayer));
 		this.info.get(this.currentPlayer).put(PlayerInfoType.CHIPS,this.getChips().get(this.currentPlayer)-Math.min(type.getChipCost(), this.getChips().get(this.currentPlayer)));
 		LOGGER.info("The kitty now has " + this.getKitty() + " chips.");
 		if (this.getScores().get(this.currentPlayer) > this.targetScore) { // target set
-			LOGGER.info(this.currentPlayer.getName() + " has passed the target score of " + this.targetScore + "! They have become the target player and set the new target at " + this.getScores().get(this.currentPlayer));
+			message = this.currentPlayer.getName() + " has passed the target score of " + this.targetScore + "! They have become the target player and set the new target at " + this.getScores().get(this.currentPlayer);
+			LOGGER.info(message);
+			messages.add(message);
 			this.targetPlayer = this.currentPlayer;
 			this.targetScore = this.getScores().get(this.targetPlayer);
 		}
@@ -166,9 +189,10 @@ public class Game {
 			LOGGER.info("Passing dice from " + this.currentPlayer.getName() + " to " + next.getName());
 			this.currentPlayer = next;
 		} while (this.currentPlayer!=this.targetPlayer && this.getStates().get(this.currentPlayer)==-1);
-		LOGGER.severe("Current player is target player? " + (this.currentPlayer == this.targetPlayer));
 		if (this.currentPlayer == this.targetPlayer) { // game over
-			LOGGER.info(this.targetPlayer.getName() + " won game " + this.gameNum + ", earning " + this.kitty + " chips from the kitty!");
+			message = this.targetPlayer.getName() + " won game " + this.gameNum + ", earning " + this.kitty + " chips from the kitty!";
+			LOGGER.info(message);
+			messages.add(message);
 			this.info.get(this.targetPlayer).put(PlayerInfoType.CHIPS, this.getChips().get(this.targetPlayer)+this.kitty);
 			for (Player player : this.getPlayersStillIn()) this.info.get(player).put(PlayerInfoType.SCORE, 0);
 			this.kitty = 0;
@@ -187,11 +211,14 @@ public class Game {
 			}
 			LOGGER.fine("There are " + this.getPlayersStillIn().length + " players remaining in the game.");
 			if (this.hasWinner()) {
-				LOGGER.info(this.currentPlayer.getName() + " won the match, having accumulated all " + this.getChips().get(this.currentPlayer) + " chips!");
+				message = this.currentPlayer.getName() + " won the match, having accumulated all " + this.getChips().get(this.currentPlayer) + " chips!";
+				LOGGER.info(message);
+				messages.add(message);
 				LOGGER.info("The match lasted " + this.gameNum + " games!");
 				this.isActive = false;
 			}
 		}
+		return messages;
 	}
 	public static boolean save(Game game, File file) {
 		boolean success = true;

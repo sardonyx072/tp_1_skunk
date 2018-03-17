@@ -116,15 +116,17 @@ public class CommandLineClient extends Client {
 				file = (inInt == 0 ? new File (this.promptGetString("Enter filename: ")) : files[inInt-1]);
 			} else this.info.add("Entered invalid file selection.");
 		} catch (Exception e) {file = new File(inStr);}
-		if (file.getParentFile() == null) file = new File(DEFAULT_SAVE_LOCATION + file.getPath());
-		if (!file.getName().substring(file.getName().lastIndexOf('.')+1).equalsIgnoreCase(SAVE_EXTENSION.substring(1))) file = new File(file.getPath() + SAVE_EXTENSION);
-		final boolean formatOK = file.getName().substring(file.getName().lastIndexOf('.')+1).equalsIgnoreCase(SAVE_EXTENSION.substring(1));
-		if (!file.exists() || (formatOK && this.promptGetConfirm("File already exists. Overwrite? [y/n]: ",null))) {
-			file.getParentFile().mkdir();
-			if (Game.save(this.game,file)) this.info.add("Successfully saved to \"" + file + "\".");
-			else this.info.add("Saving game to \"" + file + "\" failed!");
+		if (file!=null) {
+			if (file.getParentFile() == null) file = new File(DEFAULT_SAVE_LOCATION + file.getPath());
+			if (!file.getName().substring(file.getName().lastIndexOf('.')+1).equalsIgnoreCase(SAVE_EXTENSION.substring(1))) file = new File(file.getPath() + SAVE_EXTENSION);
+			final boolean formatOK = file.getName().substring(file.getName().lastIndexOf('.')+1).equalsIgnoreCase(SAVE_EXTENSION.substring(1));
+			if (!file.exists() || (formatOK && this.promptGetConfirm("File already exists. Overwrite? [y/n]: ",null))) {
+				file.getParentFile().mkdir();
+				if (Game.save(this.game,file)) this.info.add("Successfully saved to \"" + file + "\".");
+				else this.info.add("Saving game to \"" + file + "\" failed!");
+			}
+			else if (!formatOK) this.info.add("Improper file extension.");
 		}
-		else if (!formatOK) this.info.add("Improper file extension.");
 	}
 	private void load(String inStr) {
 		File[] files = new File(DEFAULT_SAVE_LOCATION).listFiles();
@@ -146,7 +148,7 @@ public class CommandLineClient extends Client {
 				file = (inInt == 0 ? new File (this.promptGetString("Enter filename: ")) : files[inInt-1]);
 			} else this.info.add("Entered invalid file selection.");
 		} catch (Exception e) {file = new File(inStr);}
-		if (file.exists() && file.getName().substring(file.getName().lastIndexOf('.'), file.getName().length()).equals(SAVE_EXTENSION)) game = Game.load(file);
+		if (file!=null && file.exists() && file.getName().substring(file.getName().lastIndexOf('.'), file.getName().length()).equals(SAVE_EXTENSION)) game = Game.load(file);
 		else this.info.add("Could not find file or improper file extension.");
 		if (game != null) this.game = game;
 		else this.info.add("Could not load game.");
@@ -192,11 +194,11 @@ public class CommandLineClient extends Client {
 			for (int i = 0; i < players.length; i++)
 				OPUT.println(
 						// indicator
-						(players[i] == this.game.getCurrentPlayer() ? String.format("%" + PLAYER_INDICATOR_WIDTH + "s", PLAYER_CURRENT_INDICATOR) : players[i] == this.game.getTargetPlayer() ? String.format("%" + PLAYER_INDICATOR_WIDTH + "s", PLAYER_TARGET_INDICATOR) : String.format("%" + PLAYER_INDICATOR_WIDTH + "s", " "))
+						(players[i]==this.game.getCurrentPlayer() && this.game.isActive() ? String.format("%" + PLAYER_INDICATOR_WIDTH + "s", PLAYER_CURRENT_INDICATOR) : players[i]==this.game.getTargetPlayer() && this.game.isActive() ? String.format("%" + PLAYER_INDICATOR_WIDTH + "s", PLAYER_TARGET_INDICATOR) : String.format("%" + PLAYER_INDICATOR_WIDTH + "s", " "))
 						// name and chips
 						+ String.format("%" + PLAYER_NUM_WIDTH + "s", (i+1)) + "." + COLUMN_SEPARATOR + String.format("%-"+PLAYER_NAME_WIDTH+"s", players[i].getName()) + COLUMN_SEPARATOR + String.format("%-"+PLAYER_CHIPS_WIDTH+"s", this.game.getChips().get(players[i]))
 						// score
-						+ COLUMN_SEPARATOR + String.format("%-"+PLAYER_SCORE_WIDTH+"s", this.game.getScores().get(players[i]) + (players[i] == this.game.getCurrentPlayer() ? "+" + this.game.getCurrentScore() + "=" + (this.game.getScores().get(players[i])+this.game.getCurrentScore()) : ""))
+						+ COLUMN_SEPARATOR + String.format("%-"+PLAYER_SCORE_WIDTH+"s", this.game.getStates().get(players[i])!=-1 ? (this.game.getScores().get(players[i]) + (players[i]==this.game.getCurrentPlayer() && this.game.isActive() ? "+" + this.game.getCurrentScore() + "=" + (this.game.getScores().get(players[i])+this.game.getCurrentScore()) : "")) : "OUT")
 				);
 		}
 		LOGGER.exiting(this.getClass().getName(), "update");
@@ -280,8 +282,8 @@ public class CommandLineClient extends Client {
 			LOGGER.finest("executing input [remove player] for inactive game");
 			try {
 				int inInt = args.length >= 2 ? Integer.parseInt(args[1]) : this.promptGetInt("Remove which player?: ");
-				if (inInt == 0 && this.promptGetConfirm("Are you sure you want to delete all players? [y/n]: ", null)) this.game.getScores().clear();
-				else if (inInt > 0 && this.promptGetConfirm("Are you sure you want to delete this player? [y/n]: ", null)) this.game.getScores().remove(this.game.getPlayers()[inInt-1]);
+				if (inInt == 0 && this.promptGetConfirm("Are you sure you want to delete all players? [y/n]: ", null)) for (Player player : this.game.getPlayers()) this.game.removePlayer(player);
+				else if (inInt > 0 && this.promptGetConfirm("Are you sure you want to delete this player? [y/n]: ", null)) this.game.removePlayer(this.game.getPlayers()[inInt-1]);
 			} catch (Exception e) {this.info.add("Invalid player selection.");}
 			break;
 		case "give":
@@ -331,11 +333,11 @@ public class CommandLineClient extends Client {
 			break;
 		case "roll":
 			LOGGER.finest("executing input [roll] for active game");
-			this.actRoll();
+			this.info.addAll(this.actRoll());
 			break;
 		case "end":
 			LOGGER.finest("executing input [end turn] for active game");
-			this.actEnd();
+			this.info.addAll(this.actEnd());
 			break;
 		case "back":
 			LOGGER.finest("executing input [back] for active game");
