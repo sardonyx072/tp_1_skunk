@@ -112,7 +112,7 @@ public class Game {
 	public boolean isActive() {return this.isActive;}
 	public int getGameNum() {return this.gameNum;}
 	public boolean setActive(boolean active) {
-		return this.isActive = active && this.currentPlayer!=null; // and at least 1 chip in play and not all players at LOST state TODO
+		return this.isActive=(active && this.getPlayersStillIn().length>=2 && this.getChips().values().stream().mapToInt(value -> value.intValue()).sum() > 0);
 	}
 	public boolean setUpTurn() {
 		while (this.isActive && this.currentPlayer instanceof BotPlayer) {
