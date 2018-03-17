@@ -277,6 +277,7 @@ public class CommandLineClient extends Client {
 			break;
 		case "shift": //TODO convenience pass player num to start on second arg OR player num to shift on second arg and position on third arg
 			LOGGER.finest("executing input [shift order] for inactive game");
+			this.info.add("This function not yet implemented.");
 			break;
 		case "remove":
 			LOGGER.finest("executing input [remove player] for inactive game");
