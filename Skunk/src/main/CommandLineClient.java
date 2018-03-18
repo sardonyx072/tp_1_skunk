@@ -349,33 +349,4 @@ public class CommandLineClient extends Client {
 			break;
 		}
 	}
-	public static void main(String[] args) {
-		CommandLineClient client = new CommandLineClient();
-		client.run();
-	}
 }
-
-/*
-
-========================================================================
-Game: 0
-  Kitty: 
-  Target: 100 (Chuck)
-Players:                               Chips            Score           
-   0. All Players                      50               0
--> 1. Aaron                            50               0+4=4
-   2. Billy                            50               0
-T# 3. Chuck                            50               0
-   4. David                            50               0
-   5. Edgar                            50               0
-   6. Frank                            50               0
-   7. Grant                            50               0
-   8. Harry                            50               0
-   9. Irwin                            50               0
-  10. James                            50               0
-Options: [0:quit] [1:load] [2:save] [3:add player] [4:remove player] [5:give chips] [6:take chips] [7:start game] {move n m} {quick n m}
-Options: [0:quit] [1:load] [2:save] [3:roll] [4:end turn] {back}
-INFO: information!
-Input> 
-
-*/
